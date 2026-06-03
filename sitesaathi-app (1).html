@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteSaathi — Construction Ka Digital Saathi</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--green:#2D7A4F;--green-light:#3EA066;--green-dark:#1A4D31;--green-pale:#E8F5EE;--orange:#E8762A;--cream:#FAFAF7;--dark:#0F1F15;--gray:#6B7C70;--border:#D4E8DC;--red:#E05252;--red-pale:#FBEAEA;--yellow:#F0A500;--yellow-pale:#FEF6E4;--blue:#2563EB;--blue-pale:#EFF6FF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans',sans-serif;background:var(--cream);color:var(--dark);}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
+.loading-logo{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#fff;margin-bottom:8px;}
+.loading-logo span{color:var(--orange);}
+.loading-sub{color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:32px;}
+.loading-bar{width:200px;height:4px;background:rgba(255,255,255,0.2);border-radius:10px;overflow:hidden;}
+.loading-fill{height:100%;background:var(--orange);border-radius:10px;animation:load 2s ease-in-out infinite;}
+@keyframes load{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
+
+/* AUTH */
+.auth-wrap{background:linear-gradient(135deg,var(--green-dark),var(--green));min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-box{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:420px;box-shadow:0 40px 80px rgba(0,0,0,0.25);animation:fadeUp 0.4s ease;}
+.auth-logo{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;color:var(--green-dark);text-align:center;margin-bottom:4px;}
+.auth-logo span{color:var(--orange);}
+.auth-tag{text-align:center;color:var(--gray);font-size:13px;margin-bottom:24px;}
+.auth-tabs{display:flex;background:var(--cream);border-radius:10px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:9px;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--gray);cursor:pointer;border-radius:7px;transition:all 0.2s;font-family:'Noto Sans',sans-serif;}
+.auth-tab.active{background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--dark);margin-bottom:5px;}
+.req{color:var(--red);}
+.fg input,.fg select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Noto Sans',sans-serif;color:var(--dark);background:var(--cream);outline:none;transition:all 0.2s;}
+.fg input:focus,.fg select:focus{border-color:var(--green);background:#fff;}
+.fg input.err{border-color:var(--red);background:var(--red-pale);}
+.err-msg{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+.err-msg.show{display:block;}
+.auth-btn{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:all 0.2s;margin-top:4px;}
+.auth-btn:hover{background:var(--green-dark);}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.demo-btn{width:100%;padding:11px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:all 0.2s;margin-top:8px;}
+.demo-btn.blue{background:var(--blue);}
+.demo-btn:hover{opacity:0.9;}
+.auth-divider{text-align:center;color:var(--gray);font-size:12px;margin:14px 0;}
+.pass-wrap{position:relative;}
+.pass-wrap input{padding-right:40px;}
+.pass-wrap button{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.role-card{border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff;}
+.role-card:hover,.role-card.selected{border-color:var(--green);background:var(--green-pale);}
+.role-card .ri{font-size:24px;margin-bottom:4px;}
+.role-card .rl{font-size:12px;font-weight:600;color:var(--dark);}
+.role-card .rs{font-size:10px;color:var(--gray);}
+
+/* APP */
+.sidebar{width:240px;background:var(--green-dark);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;transition:transform 0.3s;}
+.sb-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;}
+.sb-logo span{color:var(--orange);}
+.sb-user{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:10px;}
+.u-av{width:36px;height:36px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;flex-shrink:0;}
+.u-nm{font-size:13px;font-weight:500;color:#fff;}
+.u-rl{font-size:11px;color:rgba(255,255,255,0.6);}
+.sb-nav{padding:8px 0;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 16px;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.2s;font-size:13px;font-weight:500;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,0.12);color:#fff;border-left-color:var(--orange);}
+.nav-icon{font-size:17px;width:22px;text-align:center;}
+.sb-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.1);}
+.logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:13px;background:none;border:none;font-family:'Noto Sans',sans-serif;width:100%;padding:8px;border-radius:8px;transition:all 0.2s;}
+.logout-btn:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.main-content{margin-left:240px;flex:1;}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.pg-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--dark);}
+.add-btn{background:var(--green);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Noto Sans',sans-serif;transition:all 0.2s;}
+.add-btn:hover{background:var(--green-dark);}
+.content{padding:24px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);transition:all 0.2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(45,122,79,0.1);}
+.stat-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.stat-icon{font-size:26px;}
+.stat-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--dark);}
+.stat-lbl{font-size:12px;color:var(--gray);margin-top:3px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.dash-card{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.dash-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.dash-title{font-size:14px;font-weight:600;color:var(--dark);}
+.view-all{font-size:12px;color:var(--green);cursor:pointer;font-weight:500;}
+.dash-item{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.15s;}
+.dash-item:last-child{border-bottom:none;}
+.dash-item:hover{background:var(--cream);}
+.di-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.di-info{flex:1;}
+.di-name{font-size:13px;font-weight:500;color:var(--dark);}
+.di-sub{font-size:11px;color:var(--gray);margin-top:1px;}
+.prog-bar{background:var(--border);border-radius:10px;height:5px;overflow:hidden;margin-top:5px;}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--green-light));}
+
+/* TABLE */
+.tbl-wrap{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.tbl-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:7px 12px;flex:1;max-width:280px;}
+.search-box input{border:none;background:transparent;outline:none;font-size:13px;font-family:'Noto Sans',sans-serif;width:100%;color:var(--dark);}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--cream);}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
+td{padding:12px 14px;font-size:13px;color:var(--dark);border-top:1px solid var(--border);}
+tr:hover td{background:#fafff7;}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;}
+.bg-green{background:var(--green-pale);color:var(--green);}
+.bg-orange{background:#FEF0E7;color:var(--orange);}
+.bg-red{background:var(--red-pale);color:var(--red);}
+.bg-yellow{background:var(--yellow-pale);color:var(--yellow);}
+.bg-blue{background:var(--blue-pale);color:var(--blue);}
+.act-btns{display:flex;gap:5px;}
+.btn-edit{background:var(--green-pale);color:var(--green);border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+.btn-del{background:var(--red-pale);color:var(--red);border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
+.modal-overlay.active{display:flex;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:92vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,0.2);animation:slideUp 0.2s ease;}
+.m-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;}
+.m-title{font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:var(--dark);}
+.m-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);}
+.m-body{padding:22px;}
+.m-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;}
+.btn-cancel{padding:9px 18px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans',sans-serif;color:var(--gray);}
+.btn-save{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+.btn-save:disabled{opacity:0.6;cursor:not-allowed;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--gray);}
+.empty .ei{font-size:48px;margin-bottom:14px;}
+.empty p{font-size:14px;margin-bottom:18px;}
+
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* CLIENT */
+.client-welcome{background:linear-gradient(135deg,var(--blue),#1d4ed8);border-radius:14px;padding:24px;color:#fff;margin-bottom:20px;}
+.client-welcome h2{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.client-welcome p{font-size:14px;opacity:0.85;}
+.site-prog-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:14px;}
+.spc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.spc-name{font-size:16px;font-weight:600;color:var(--dark);}
+.spc-loc{font-size:12px;color:var(--gray);margin-top:2px;}
+.spc-prog{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--green);}
+.spc-bar{background:var(--border);border-radius:10px;height:8px;overflow:hidden;margin-bottom:10px;}
+.spc-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--green-light));}
+.spc-update{font-size:12px;color:var(--gray);background:var(--cream);padding:8px 12px;border-radius:8px;}
+.sum-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.sum-card{background:#fff;border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border);}
+.sum-val{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;}
+.sum-lbl{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* CONNECT CODE */
+.connect-box{background:var(--green-pale);border:1px solid var(--green);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;}
+.connect-code{font-family:monospace;font-size:28px;font-weight:700;color:var(--green-dark);letter-spacing:8px;margin:10px 0;}
+.connect-copy{background:var(--green);color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+
+/* MOBILE */
+.mob-head{display:none;}
+.sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:49;display:none;}
+.sb-overlay.active{display:block;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-content{margin-left:0;}
+  .mob-head{display:flex;align-items:center;justify-content:space-between;background:var(--green-dark);padding:12px 16px;position:sticky;top:0;z-index:60;}
+  .mob-logo{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+  .mob-logo span{color:var(--orange);}
+  .mob-ham{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+  .topbar{display:none;}
+  .dash-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .content{padding:14px;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.whatsapp-fab{position:fixed;bottom:24px;right:24px;z-index:98;width:50px;height:50px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,0.4);transition:all 0.2s;}
+.whatsapp-fab:hover{transform:scale(1.1);}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">🏗️ Site<span>Saathi</span></div>
+  <div class="loading-sub">Loading...</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<!-- AUTH -->
+<div class="screen" id="screen-auth">
+<div class="auth-wrap">
+<div class="auth-box">
+  <div class="auth-logo">🏗️ Site<span>Saathi</span></div>
+  <div class="auth-tag">Construction Ka Digital Saathi</div>
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="authTab('login')">Login Karo</button>
+    <button class="auth-tab" onclick="authTab('signup')">Sign Up Karo</button>
+  </div>
+  <!-- LOGIN -->
+  <div id="pane-login">
+    <div class="fg"><label>Email <span class="req">*</span></label><input id="l-email" type="email" placeholder="aapka@email.com"></div>
+    <div class="fg"><label>Password <span class="req">*</span></label>
+      <div class="pass-wrap"><input id="l-pass" type="password" placeholder="Password daalo"><button type="button" onclick="togglePass('l-pass',this)">👁️</button></div>
+    </div>
+    <button class="auth-btn" id="login-btn" onclick="doLogin()">🚀 Login Karo</button>
+    <div class="auth-divider">— Demo accounts —</div>
+    <button class="demo-btn" onclick="demoLogin('contractor')">⚡ Contractor Demo</button>
+    <button class="demo-btn blue" onclick="demoLogin('client')" style="margin-top:8px">🏠 Client Demo</button>
+  </div>
+  <!-- SIGNUP -->
+  <div id="pane-signup" style="display:none">
+    <div class="fg"><label>Poora Naam <span class="req">*</span></label><input id="s-name" type="text" placeholder="Jaise: Ramesh Kumar"><div class="err-msg" id="e-name">Naam daalna zaroori hai!</div></div>
+    <div class="fg"><label>Mobile <span class="req">*</span></label><input id="s-phone" type="tel" placeholder="+91 XXXXX XXXXX"><div class="err-msg" id="e-phone">Valid 10 digit number daalo!</div></div>
+    <div class="fg"><label>Email <span class="req">*</span></label><input id="s-email" type="email" placeholder="aapka@email.com"><div class="err-msg" id="e-email">Valid email daalo!</div></div>
+    <div class="fg"><label>Aap Kaun Hain? <span class="req">*</span></label>
+      <div class="role-grid">
+        <div class="role-card selected" id="rc-contractor" onclick="selRole('contractor')"><div class="ri">🏗️</div><div class="rl">Contractor</div><div class="rs">Site manage karta hoon</div></div>
+        <div class="role-card" id="rc-client" onclick="selRole('client')"><div class="ri">🏠</div><div class="rl">Client</div><div class="rs">Ghar banwa raha hoon</div></div>
+      </div>
+    </div>
+    <div class="fg"><label>City <span class="req">*</span></label><input id="s-city" type="text" placeholder="Jaise: Indore"><div class="err-msg" id="e-city">City daalni zaroori hai!</div></div>
+    <div class="fg"><label>Password <span class="req">*</span></label>
+      <div class="pass-wrap"><input id="s-pass" type="password" placeholder="Kam se kam 6 characters"><button type="button" onclick="togglePass('s-pass',this)">👁️</button></div>
+      <div class="err-msg" id="e-pass">Password kam se kam 6 characters!</div>
+    </div>
+    <div class="fg"><label>Password Confirm <span class="req">*</span></label>
+      <div class="pass-wrap"><input id="s-pass2" type="password" placeholder="Password dobara daalo"><button type="button" onclick="togglePass('s-pass2',this)">👁️</button></div>
+      <div class="err-msg" id="e-pass2">Passwords match nahi kar rahe!</div>
+    </div>
+    <!-- CLIENT: Connect Code -->
+    <div id="client-code-section" style="display:none">
+      <div class="fg"><label>Contractor Ka Connect Code <span class="req">*</span></label><input id="s-code" type="text" placeholder="6 digit code daalo" maxlength="6" style="letter-spacing:4px;font-size:18px;text-align:center"><div class="err-msg" id="e-code">Valid connect code daalo!</div></div>
+      <p style="font-size:11px;color:var(--gray);margin-top:-8px">Apne contractor se 6 digit code maango</p>
+    </div>
+    <button class="auth-btn" id="signup-btn" onclick="doSignup()">✅ Account Banao</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- APP -->
+<div class="screen" id="screen-app">
+  <div class="mob-head">
+    <button class="mob-ham" onclick="toggleSB()">☰</button>
+    <div class="mob-logo">🏗️ Site<span>Saathi</span></div>
+    <div style="width:32px"></div>
+  </div>
+  <div class="sb-overlay" id="sb-overlay" onclick="toggleSB()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-logo">🏗️ Site<span>Saathi</span></div>
+    <div class="sb-user">
+      <div class="u-av" id="u-av">A</div>
+      <div><div class="u-nm" id="u-nm">User</div><div class="u-rl" id="u-rl">Contractor</div></div>
+    </div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <div class="sb-foot">
+      <button class="logout-btn" onclick="doLogout()">🚪 Logout Karo</button>
+    </div>
+  </div>
+  <div class="main-content">
+    <div class="topbar">
+      <div class="pg-title" id="pg-title">Dashboard</div>
+      <button class="add-btn" id="add-btn" onclick="openAdd()" style="display:none">+ Add Karo</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="m-head"><div class="m-title" id="m-title">Add</div><button class="m-close" onclick="closeModal()">✕</button></div>
+    <div class="m-body" id="m-body"></div>
+    <div class="m-foot"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" id="save-btn" onclick="saveItem()">✅ Save Karo</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<a href="https://wa.me/916263631635" class="whatsapp-fab" target="_blank">💬</a>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC5UDu0YoSghOVdrb1q2jCKD4Yku9H4vhw",
+  authDomain: "sitesaathii.firebaseapp.com",
+  projectId: "sitesaathii",
+  storageBucket: "sitesaathii.firebasestorage.app",
+  messagingSenderId: "992271653446",
+  appId: "1:992271653446:web:6a32f93f58a4b991ab0847"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ===== STATE =====
+let currentUser = null;
+let currentPage = 'dashboard';
+let editId = null;
+let selRole = 'contractor';
+let unsubscribers = [];
+
+// ===== LOADING =====
+onAuthStateChanged(auth, async (user) => {
+  if(user) {
+    const uDoc = await getDoc(doc(db,'users',user.uid));
+    if(uDoc.exists()) {
+      currentUser = {uid:user.uid, email:user.email, ...uDoc.data(), isDemo:false};
+      hideLoading();
+      enterApp();
+    } else {
+      hideLoading();
+      showScreen('auth');
+    }
+  } else {
+    hideLoading();
+    showScreen('auth');
+  }
+});
+
+function hideLoading() {
+  document.getElementById('loading').style.display='none';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+// ===== AUTH FUNCTIONS =====
+window.authTab = (t) => {
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='signup')));
+  document.getElementById('pane-login').style.display=t==='login'?'block':'none';
+  document.getElementById('pane-signup').style.display=t==='signup'?'block':'none';
+};
+
+window.togglePass = (id,btn) => {
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'👁️':'🙈';
+};
+
+window.selRole = (r) => {
+  selRole=r;
+  document.getElementById('rc-contractor').classList.toggle('selected',r==='contractor');
+  document.getElementById('rc-client').classList.toggle('selected',r==='client');
+  document.getElementById('client-code-section').style.display=r==='client'?'block':'none';
+};
+
+function showErr(id,show,msg) {
+  const el=document.getElementById('e-'+id);
+  if(el){el.classList.toggle('show',show);if(msg)el.textContent=msg;}
+  const inp=document.getElementById('s-'+id);
+  if(inp)inp.classList.toggle('err',show);
+}
+
+window.doLogin = async () => {
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  if(!email||!pass){showToast('Email aur password daalo!','error');return;}
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Login ho raha hai...';
+  try {
+    await signInWithEmailAndPassword(auth,email,pass);
+  } catch(e) {
+    btn.disabled=false;btn.textContent='🚀 Login Karo';
+    showToast('Email ya password galat hai!','error');
+  }
+};
+
+window.doSignup = async () => {
+  let ok=true;
+  const name=document.getElementById('s-name').value.trim();
+  const phone=document.getElementById('s-phone').value.trim();
+  const email=document.getElementById('s-email').value.trim();
+  const city=document.getElementById('s-city').value.trim();
+  const pass=document.getElementById('s-pass').value;
+  const pass2=document.getElementById('s-pass2').value;
+  const code=document.getElementById('s-code')?.value.trim();
+
+  if(!name){showErr('name',true);ok=false;}else showErr('name',false);
+  if(!phone||phone.replace(/\D/g,'').length<10){showErr('phone',true);ok=false;}else showErr('phone',false);
+  if(!email||!email.includes('@')){showErr('email',true);ok=false;}else showErr('email',false);
+  if(!city){showErr('city',true);ok=false;}else showErr('city',false);
+  if(pass.length<6){showErr('pass',true);ok=false;}else showErr('pass',false);
+  if(pass!==pass2){showErr('pass2',true);ok=false;}else showErr('pass2',false);
+
+  let contractorId = null;
+  if(selRole==='client') {
+    if(!code||code.length!==6){showErr('code',true,'6 digit code daalo!');ok=false;}
+    else {
+      const cSnap = await getDocs(query(collection(db,'users'),where('connectCode','==',code),where('role','==','contractor')));
+      if(cSnap.empty){showErr('code',true,'Yeh code kisi contractor ka nahi hai!');ok=false;}
+      else{showErr('code',false);contractorId=cSnap.docs[0].id;}
+    }
+  }
+
+  if(!ok)return;
+  const btn=document.getElementById('signup-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Account ban raha hai...';
+
+  try {
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    const connectCode=selRole==='contractor'?Math.random().toString(36).substr(2,6).toUpperCase():null;
+    await setDoc(doc(db,'users',cred.user.uid),{
+      name,phone,email,city,role:selRole,
+      connectCode:connectCode,
+      contractorId:contractorId,
+      createdAt:new Date().toISOString()
+    });
+    showToast('Account ban gaya! Welcome '+name+'! 🎉','success');
+  } catch(e) {
+    btn.disabled=false;btn.textContent='✅ Account Banao';
+    if(e.code==='auth/email-already-in-use') showToast('Yeh email already registered hai!','error');
+    else showToast('Error aaya: '+e.message,'error');
+  }
+};
+
+window.demoLogin = (role) => {
+  currentUser = {
+    uid:'demo-'+role, name:role==='contractor'?'Aditya Demo (Contractor)':'Rahul Demo (Client)',
+    role, city:'Indore', isDemo:true,
+    connectCode:role==='contractor'?'DEMO01':null,
+    contractorId:role==='client'?'demo-contractor':null
+  };
+  enterApp();
+};
+
+window.doLogout = async () => {
+  if(!confirm('Logout karna chahte ho?'))return;
+  unsubscribers.forEach(u=>u());
+  unsubscribers=[];
+  if(!currentUser?.isDemo) await signOut(auth);
+  currentUser=null; currentPage='dashboard';
+  showScreen('auth');
+  document.getElementById('l-email').value='';
+  document.getElementById('l-pass').value='';
+  showToast('Logout ho gaye! 👋');
+};
+
+// ===== DEMO DATA =====
+const DEMO_DATA = {
+  contractor: {
+    sites:[
+      {id:'s1',name:'Sharma Villa',location:'Vijay Nagar, Indore',startDate:'2026-03-01',endDate:'2026-08-01',progress:45,status:'On Track',update:'Foundation complete, brick work shuru hua'},
+      {id:'s2',name:'MG Road Shop',location:'MG Road, Indore',startDate:'2026-04-01',endDate:'2026-07-01',progress:70,status:'Delayed',update:'Plumbing delay ho gayi'},
+    ],
+    materials:[
+      {id:'m1',site:'Sharma Villa',item:'Cement',ordered:50,received:35,unit:'Bags',supplier:'Shri Cement'},
+      {id:'m2',site:'MG Road Shop',item:'Sariya',ordered:200,received:200,unit:'Kg',supplier:'Gupta Iron'},
+    ],
+    payments:[
+      {id:'p1',client:'Sharma Ji',site:'Sharma Villa',total:800000,received:500000,date:'2026-04-15',status:'Partial'},
+      {id:'p2',client:'Gupta Sahab',site:'MG Road Shop',total:250000,received:250000,date:'2026-05-01',status:'Paid'},
+    ],
+    workers:[
+      {id:'w1',name:'Raju Mistri',role:'Mason',site:'Sharma Villa',days:22,rate:600,advance:2000,status:'Pending'},
+      {id:'w2',name:'Suresh Helper',role:'Helper',site:'MG Road Shop',days:18,rate:400,advance:0,status:'Paid'},
+    ]
+  },
+  client: {
+    sites:[
+      {id:'s1',name:'Sharma Villa',location:'Vijay Nagar, Indore',progress:45,status:'On Track',update:'Foundation complete, brick work shuru hua',budget:800000,paid:500000},
+    ]
+  }
+};
+
+// ===== APP =====
+function enterApp() {
+  showScreen('app');
+  document.getElementById('u-nm').textContent=currentUser.name;
+  document.getElementById('u-av').textContent=currentUser.name[0].toUpperCase();
+  document.getElementById('u-rl').textContent=(currentUser.isDemo?'Demo — ':'')+( currentUser.role==='contractor'?'Contractor':'Client');
+  buildNav();
+  showPage('dashboard');
+}
+
+function buildNav() {
+  const isC=currentUser.role==='contractor';
+  const items=isC?[
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {id:'sites',icon:'🏗️',label:'Site Updates'},
+    {id:'material',icon:'🧱',label:'Material'},
+    {id:'payments',icon:'💰',label:'Payments'},
+    {id:'workers',icon:'👷',label:'Workers'},
+    {id:'mycode',icon:'🔗',label:'Connect Code'},
+  ]:[
+    {id:'dashboard',icon:'📊',label:'Mera Dashboard'},
+    {id:'mysites',icon:'🏗️',label:'Meri Sites'},
+    {id:'mypayments',icon:'💰',label:'Payment History'},
+  ];
+  document.getElementById('sb-nav').innerHTML=items.map(n=>`<div class="nav-item" id="nav-${n.id}" onclick="showPage('${n.id}')"><span class="nav-icon">${n.icon}</span>${n.label}</div>`).join('');
+}
+
+window.showPage = (page) => {
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-'+page)?.classList.add('active');
+  const titles={dashboard:'📊 Dashboard',sites:'🏗️ Site Updates',material:'🧱 Material',payments:'💰 Payments',workers:'👷 Workers',mycode:'🔗 Connect Code',mysites:'🏗️ Meri Sites',mypayments:'💰 Payment History'};
+  document.getElementById('pg-title').textContent=titles[page]||page;
+  const showAdd=['sites','material','payments','workers'].includes(page)&&currentUser.role==='contractor';
+  const btn=document.getElementById('add-btn');
+  btn.style.display=showAdd?'flex':'none';
+  const labels={sites:'+ Site Add Karo',material:'+ Material Add Karo',payments:'+ Payment Add Karo',workers:'+ Worker Add Karo'};
+  btn.textContent=labels[page]||'+ Add';
+  renderPage(page);
+  if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('active');}
+};
+
+window.toggleSB=()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('sb-overlay').classList.toggle('active');};
+
+// ===== FIRESTORE HELPERS =====
+function col(name){return collection(db,'users',currentUser.uid,name);}
+
+async function getItems(name){
+  if(currentUser.isDemo)return DEMO_DATA[currentUser.role][name]||[];
+  const snap=await getDocs(col(name));
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+async function addItem(name,data){
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota!','error');return false;}
+  await addDoc(col(name),{...data,createdAt:new Date().toISOString()});
+  return true;
+}
+
+async function updateItem(name,id,data){
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota!','error');return false;}
+  await updateDoc(doc(db,'users',currentUser.uid,name,id),data);
+  return true;
+}
+
+async function deleteItem2(name,id){
+  if(currentUser.isDemo){showToast('Demo mein delete nahi hota!','error');return false;}
+  await deleteDoc(doc(db,'users',currentUser.uid,name,id));
+  return true;
+}
+
+// ===== RENDER =====
+async function renderPage(page){
+  const area=document.getElementById('content');
+  area.innerHTML='<div class="empty"><div class="ei">⏳</div><p>Load ho raha hai...</p></div>';
+  if(page==='dashboard') area.innerHTML=currentUser.role==='contractor'?await renderCDash():await renderClientDash();
+  else if(page==='sites') area.innerHTML=await renderSites();
+  else if(page==='material') area.innerHTML=await renderMaterial();
+  else if(page==='payments') area.innerHTML=await renderPayments();
+  else if(page==='workers') area.innerHTML=await renderWorkers();
+  else if(page==='mycode') area.innerHTML=renderMyCode();
+  else if(page==='mysites'||page==='mypayments') area.innerHTML=await renderClientDash();
+}
+
+async function renderCDash(){
+  const [sites,materials,payments,workers]=await Promise.all([getItems('sites'),getItems('materials'),getItems('payments'),getItems('workers')]);
+  const pendPay=payments.filter(p=>p.status!=='Paid').reduce((s,p)=>s+(p.total-p.received),0);
+  const lowStock=materials.filter(m=>(m.ordered-m.received)>0).length;
+  const pendW=workers.filter(w=>w.status==='Pending').length;
+  return `
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🏗️</span><span class="stat-badge bg-green">Active</span></div><div class="stat-val">${sites.length}</div><div class="stat-lbl">Total Sites</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">💰</span><span class="stat-badge bg-orange">Baaki</span></div><div class="stat-val">${payments.length?'₹'+(pendPay/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Payment Pending</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🧱</span><span class="stat-badge bg-red">Low</span></div><div class="stat-val">${lowStock}</div><div class="stat-lbl">Material Shortage</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">👷</span><span class="stat-badge bg-yellow">Due</span></div><div class="stat-val">${pendW}</div><div class="stat-lbl">Worker Due</div></div>
+  </div>
+  ${sites.length===0?`<div class="empty"><div class="ei">🏗️</div><p>Koi data nahi. Pehli site add karo!</p><button class="add-btn" onclick="showPage('sites')">+ Site Add Karo</button></div>`:`
+  <div class="dash-grid">
+    <div class="dash-card"><div class="dash-head"><span class="dash-title">Recent Sites</span><span class="view-all" onclick="showPage('sites')">Sab →</span></div>
+    ${sites.slice(0,3).map(s=>`<div class="dash-item"><div class="di-icon" style="background:var(--green-pale)">🏗️</div><div class="di-info"><div class="di-name">${s.name}</div><div class="di-sub">${s.location}</div><div class="prog-bar"><div class="prog-fill" style="width:${s.progress}%"></div></div></div><span class="pill ${s.status==='On Track'?'bg-green':'bg-orange'}">${s.status}</span></div>`).join('')}
+    </div>
+    <div class="dash-card"><div class="dash-head"><span class="dash-title">Payments</span><span class="view-all" onclick="showPage('payments')">Sab →</span></div>
+    ${payments.slice(0,3).map(p=>`<div class="dash-item"><div class="di-icon" style="background:#FEF0E7">💰</div><div class="di-info"><div class="di-name">${p.client}</div><div class="di-sub">₹${p.total.toLocaleString()}</div></div><span class="pill ${p.status==='Paid'?'bg-green':p.status==='Partial'?'bg-yellow':'bg-red'}">${p.status}</span></div>`).join('')}
+    </div>
+  </div>`}`;
+}
+
+async function renderClientDash(){
+  let sites=[];
+  if(currentUser.isDemo){sites=DEMO_DATA.client.sites;}
+  else if(currentUser.contractorId){
+    const snap=await getDocs(collection(db,'users',currentUser.contractorId,'sites'));
+    sites=snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  const totalB=sites.reduce((s,si)=>s+(si.budget||0),0);
+  const totalP=sites.reduce((s,si)=>s+(si.paid||0),0);
+  return `
+  <div class="client-welcome"><h2>Namaste, ${currentUser.name.split(' ')[0]}! 👋</h2><p>Aapki sites ka live status yahan dekho!</p></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🏗️</span><span class="stat-badge bg-green">Active</span></div><div class="stat-val">${sites.length}</div><div class="stat-lbl">Meri Sites</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">💰</span><span class="stat-badge bg-blue">Budget</span></div><div class="stat-val">${totalB?'₹'+(totalB/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Total Budget</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">✅</span><span class="stat-badge bg-green">Paid</span></div><div class="stat-val">${totalP?'₹'+(totalP/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Diya Hua</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">⏳</span><span class="stat-badge bg-orange">Baaki</span></div><div class="stat-val">${totalB?'₹'+((totalB-totalP)/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Baaki Dena</div></div>
+  </div>
+  <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;margin-bottom:14px;">📍 Site Progress</h3>
+  ${sites.length===0?`<div class="empty"><div class="ei">🏗️</div><p>Contractor ne abhi koi site add nahi ki!</p></div>`:
+  sites.map(s=>`<div class="site-prog-card">
+    <div class="spc-top"><div><div class="spc-name">${s.name}</div><div class="spc-loc">📍 ${s.location||''}</div></div><div style="text-align:right"><div class="spc-prog">${s.progress||0}%</div><span class="pill ${s.status==='On Track'?'bg-green':'bg-orange'}">${s.status}</span></div></div>
+    <div class="spc-bar"><div class="spc-fill" style="width:${s.progress||0}%"></div></div>
+    <div class="spc-update">📋 ${s.update||'Koi update nahi'}</div>
+    ${s.budget?`<div style="display:flex;gap:10px;margin-top:10px">
+      <div style="flex:1;text-align:center;background:var(--cream);padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Budget</div><div style="font-weight:600;font-size:13px">₹${s.budget.toLocaleString()}</div></div>
+      <div style="flex:1;text-align:center;background:var(--green-pale);padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Diya</div><div style="font-weight:600;font-size:13px;color:var(--green)">₹${(s.paid||0).toLocaleString()}</div></div>
+      <div style="flex:1;text-align:center;background:#FEF0E7;padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Baaki</div><div style="font-weight:600;font-size:13px;color:var(--orange)">₹${(s.budget-(s.paid||0)).toLocaleString()}</div></div>
+    </div>`:''}
+  </div>`).join('')}`;
+}
+
+function renderMyCode(){
+  const code=currentUser.connectCode||'N/A';
+  return `
+  <div style="max-width:500px;margin:0 auto">
+    <div class="connect-box">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:20px;color:var(--green-dark);margin-bottom:8px">🔗 Tumhara Connect Code</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Yeh code client ko do — woh signup karte waqt yeh daale aur tumse connect ho jaayega!</p>
+      <div class="connect-code">${code}</div>
+      <button class="connect-copy" onclick="navigator.clipboard.writeText('${code}');showToast('Code copy ho gaya!','success')">📋 Copy Karo</button>
+    </div>
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px">
+      <h4 style="font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:12px">Client ko yeh WhatsApp karo:</h4>
+      <div style="background:var(--cream);border-radius:8px;padding:14px;font-size:13px;color:var(--gray);line-height:1.7">
+        "Bhai/Madam, SiteSaathi app pe aapki site ka live update dekh sakte ho! Sign up karo yahan: https://adityarana1635aditya.github.io/Sitesaathi/sitesaathi-app.html<br><br>Sign up karte waqt 'Client' select karo aur Contractor Connect Code daalo: <strong style="color:var(--green-dark);letter-spacing:3px">${code}</strong>"
+      </div>
+      <button onclick="navigator.clipboard.writeText('Bhai/Madam, SiteSaathi app pe aapki site ka live update dekh sakte ho! Sign up karo: https://adityarana1635aditya.github.io/Sitesaathi/sitesaathi-app.html\\n\\nSign up karte waqt Client select karo aur Connect Code daalo: ${code}');showToast('Message copy ho gaya!','success')" style="margin-top:12px;background:var(--green);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans',sans-serif">📋 Message Copy Karo</button>
+    </div>
+  </div>`;
+}
+
+async function renderSites(){
+  const sites=await getItems('sites');
+  if(!sites.length)return`<div class="empty"><div class="ei">🏗️</div><p>Koi site nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Site Add Karo</button></div>`;
+  return`<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Sites (${sites.length})</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'st')"></div></div><div style="overflow-x:auto"><table id="st"><thead><tr><th>Naam</th><th>Location</th><th>Progress</th><th>Status</th><th>Update</th><th>Action</th></tr></thead><tbody>${sites.map(s=>`<tr><td><strong>${s.name}</strong></td><td>${s.location}</td><td style="min-width:100px">${s.progress}%<div class="prog-bar"><div class="prog-fill" style="width:${s.progress}%"></div></div></td><td><span class="pill ${s.status==='On Track'?'bg-green':s.status==='Delayed'?'bg-orange':'bg-blue'}">${s.status}</span></td><td style="max-width:160px;font-size:12px;color:var(--gray)">${s.update||''}</td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('sites','${s.id}')">✏️</button><button class="btn-del" onclick="delItem('sites','${s.id}')">🗑️</button></div></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+async function renderMaterial(){
+  const items=await getItems('materials');
+  if(!items.length)return`<div class="empty"><div class="ei">🧱</div><p>Koi material nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Add Karo</button></div>`;
+  return`<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Material (${items.length})</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'mt')"></div></div><div style="overflow-x:auto"><table id="mt"><thead><tr><th>Item</th><th>Site</th><th>Order</th><th>Mila</th><th>Baaki</th><th>Supplier</th><th>Action</th></tr></thead><tbody>${items.map(m=>{const b=m.ordered-m.received;return`<tr><td><strong>${m.item}</strong></td><td>${m.site}</td><td>${m.ordered} ${m.unit}</td><td>${m.received} ${m.unit}</td><td><span class="pill ${b>0?'bg-orange':'bg-green'}">${b} ${m.unit}</span></td><td style="font-size:12px">${m.supplier||''}</td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('materials','${m.id}')">✏️</button><button class="btn-del" onclick="delItem('materials','${m.id}')">🗑️</button></div></td></tr>`;}).join('')}</tbody></table></div></div>`;
+}
+
+async function renderPayments(){
+  const items=await getItems('payments');
+  const tot=items.reduce((s,p)=>s+p.total,0),rec=items.reduce((s,p)=>s+p.received,0);
+  return`<div class="sum-row"><div class="sum-card"><div class="sum-val">₹${(tot/100000).toFixed(1)}L</div><div class="sum-lbl">Total</div></div><div class="sum-card"><div class="sum-val" style="color:var(--green)">₹${(rec/100000).toFixed(1)}L</div><div class="sum-lbl">Mila</div></div><div class="sum-card"><div class="sum-val" style="color:var(--orange)">₹${((tot-rec)/100000).toFixed(1)}L</div><div class="sum-lbl">Baaki</div></div></div>
+  ${!items.length?`<div class="empty"><div class="ei">💰</div><p>Koi payment nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Add Karo</button></div>`:
+  `<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Payments</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'pt')"></div></div><div style="overflow-x:auto"><table id="pt"><thead><tr><th>Client</th><th>Site</th><th>Total</th><th>Mila</th><th>Baaki</th><th>Status</th><th>Action</th></tr></thead><tbody>${items.map(p=>`<tr><td><strong>${p.client}</strong></td><td>${p.site}</td><td>₹${p.total.toLocaleString()}</td><td style="color:var(--green)">₹${p.received.toLocaleString()}</td><td style="color:var(--orange)">₹${(p.total-p.received).toLocaleString()}</td><td><span class="pill ${p.status==='Paid'?'bg-green':p.status==='Partial'?'bg-yellow':'bg-red'}">${p.status}</span></td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('payments','${p.id}')">✏️</button><button class="btn-del" onclick="delItem('payments','${p.id}')">🗑️</button></div></td></tr>`).join('')}</tbody></table></div></div>`}`;
+}
+
+async function renderWorkers(){
+  const items=await getItems('workers');
+  if(!items.length)return`<div class="empty"><div class="ei">👷</div><p>Koi worker nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Add Karo</button></div>`;
+  return`<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Workers (${items.length})</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'wt')"></div></div><div style="overflow-x:auto"><table id="wt"><thead><tr><th>Naam</th><th>Role</th><th>Site</th><th>Din</th><th>Rate</th><th>Total</th><th>Advance</th><th>Due</th><th>Status</th><th>Action</th></tr></thead><tbody>${items.map(w=>{const t=w.days*w.rate,due=t-w.advance;return`<tr><td><strong>${w.name}</strong></td><td>${w.role}</td><td>${w.site}</td><td>${w.days}</td><td>₹${w.rate}</td><td>₹${t.toLocaleString()}</td><td style="color:var(--orange)">₹${w.advance}</td><td style="font-weight:600">₹${due.toLocaleString()}</td><td><span class="pill ${w.status==='Paid'?'bg-green':'bg-red'}">${w.status}</span></td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('workers','${w.id}')">✏️</button><button class="btn-del" onclick="delItem('workers','${w.id}')">🗑️</button></div></td></tr>`;}).join('')}</tbody></table></div></div>`;
+}
+
+// ===== MODAL =====
+window.openAdd=()=>{editId=null;openModal(currentPage,null);};
+
+window.openEdit=async(type,id)=>{
+  editId=id;
+  const items=await getItems(type);
+  const item=items.find(i=>i.id===id);
+  const pageMap={sites:'sites',materials:'material',payments:'payments',workers:'workers'};
+  openModal(pageMap[type],item);
+};
+
+async function openModal(page,data){
+  const titles={sites:'Site',material:'Material',payments:'Payment',workers:'Worker'};
+  document.getElementById('m-title').textContent=(editId?'Edit: ':'Naya ')+(titles[page]||page);
+  const sites=await getItems('sites');
+  document.getElementById('m-body').innerHTML=getForm(page,data,sites);
+  document.getElementById('modal').classList.add('active');
+}
+
+function getForm(page,d,sites){
+  const v=(k,def='')=>d?(d[k]??def):def;
+  const sOpts=sites.map(s=>`<option ${v('site')===s.name?'selected':''}>${s.name}</option>`).join('');
+  if(page==='sites')return`
+    <div class="fg"><label>Site Ka Naam <span class="req">*</span></label><input id="f-name" value="${v('name')}" placeholder="Sharma Villa"></div>
+    <div class="fg"><label>Location <span class="req">*</span></label><input id="f-location" value="${v('location')}" placeholder="Vijay Nagar, Indore"></div>
+    <div class="fg"><label>Shuru Tarikh</label><input type="date" id="f-startDate" value="${v('startDate')}"></div>
+    <div class="fg"><label>Khatam Tarikh</label><input type="date" id="f-endDate" value="${v('endDate')}"></div>
+    <div class="fg"><label>Progress (0-100)</label><input type="number" id="f-progress" value="${v('progress',0)}" min="0" max="100"></div>
+    <div class="fg"><label>Status</label><select id="f-status"><option ${v('status')==='On Track'?'selected':''}>On Track</option><option ${v('status')==='Delayed'?'selected':''}>Delayed</option><option ${v('status')==='Completed'?'selected':''}>Completed</option></select></div>
+    <div class="fg"><label>Aaj Ka Update</label><input id="f-update" value="${v('update')}" placeholder="Aaj kya hua?"></div>
+    <div class="fg"><label>Client Budget (₹)</label><input type="number" id="f-budget" value="${v('budget',0)}" placeholder="Total project amount"></div>
+    <div class="fg"><label>Client Ne Diya (₹)</label><input type="number" id="f-paid" value="${v('paid',0)}" placeholder="Abhi tak mila"></div>`;
+  if(page==='material')return`
+    <div class="fg"><label>Site <span class="req">*</span></label><select id="f-site">${sOpts||'<option>Pehle site add karo</option>'}</select></div>
+    <div class="fg"><label>Item Naam <span class="req">*</span></label><input id="f-item" value="${v('item')}" placeholder="Cement, Sariya..."></div>
+    <div class="fg"><label>Unit</label><select id="f-unit"><option ${v('unit')==='Bags'?'selected':''}>Bags</option><option ${v('unit')==='Kg'?'selected':''}>Kg</option><option ${v('unit')==='Pcs'?'selected':''}>Pcs</option><option ${v('unit')==='Tons'?'selected':''}>Tons</option></select></div>
+    <div class="fg"><label>Order Kiya</label><input type="number" id="f-ordered" value="${v('ordered',0)}" min="0"></div>
+    <div class="fg"><label>Mila</label><input type="number" id="f-received" value="${v('received',0)}" min="0"></div>
+    <div class="fg"><label>Supplier</label><input id="f-supplier" value="${v('supplier')}" placeholder="Supplier naam"></div>`;
+  if(page==='payments')return`
+    <div class="fg"><label>Client Naam <span class="req">*</span></label><input id="f-client" value="${v('client')}" placeholder="Sharma Ji"></div>
+    <div class="fg"><label>Site</label><select id="f-site">${sOpts}</select></div>
+    <div class="fg"><label>Total Amount (₹) <span class="req">*</span></label><input type="number" id="f-total" value="${v('total',0)}" min="0"></div>
+    <div class="fg"><label>Mila (₹)</label><input type="number" id="f-received" value="${v('received',0)}" min="0"></div>
+    <div class="fg"><label>Tarikh</label><input type="date" id="f-date" value="${v('date')}"></div>`;
+  if(page==='workers')return`
+    <div class="fg"><label>Naam <span class="req">*</span></label><input id="f-name" value="${v('name')}" placeholder="Raju Mistri"></div>
+    <div class="fg"><label>Role</label><select id="f-role"><option ${v('role')==='Mason'?'selected':''}>Mason</option><option ${v('role')==='Helper'?'selected':''}>Helper</option><option ${v('role')==='Electrician'?'selected':''}>Electrician</option><option ${v('role')==='Plumber'?'selected':''}>Plumber</option><option ${v('role')==='Carpenter'?'selected':''}>Carpenter</option></select></div>
+    <div class="fg"><label>Site</label><select id="f-site">${sOpts}</select></div>
+    <div class="fg"><label>Din</label><input type="number" id="f-days" value="${v('days',0)}" min="0"></div>
+    <div class="fg"><label>Daily Rate (₹)</label><input type="number" id="f-rate" value="${v('rate',0)}" min="0"></div>
+    <div class="fg"><label>Advance (₹)</label><input type="number" id="f-advance" value="${v('advance',0)}" min="0"></div>
+    <div class="fg"><label>Status</label><select id="f-status"><option ${v('status')==='Pending'?'selected':''}>Pending</option><option ${v('status')==='Paid'?'selected':''}>Paid</option></select></div>`;
+  return'';
+}
+
+const g=id=>document.getElementById(id)?.value||'';
+
+window.saveItem=async()=>{
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota! Real account banao.','error');return;}
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Save...';
+  let item={},type='';
+  if(currentPage==='sites'){
+    if(!g('f-name')){showToast('Naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    item={name:g('f-name'),location:g('f-location'),startDate:g('f-startDate'),endDate:g('f-endDate'),progress:parseInt(g('f-progress'))||0,status:g('f-status')||'On Track',update:g('f-update'),budget:parseInt(g('f-budget'))||0,paid:parseInt(g('f-paid'))||0};type='sites';
+  } else if(currentPage==='material'){
+    if(!g('f-item')){showToast('Item naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    item={site:g('f-site'),item:g('f-item'),unit:g('f-unit')||'Pcs',ordered:parseInt(g('f-ordered'))||0,received:parseInt(g('f-received'))||0,supplier:g('f-supplier')};type='materials';
+  } else if(currentPage==='payments'){
+    if(!g('f-client')){showToast('Client naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    const tot=parseInt(g('f-total'))||0,rec=parseInt(g('f-received'))||0;
+    item={client:g('f-client'),site:g('f-site'),total:tot,received:rec,date:g('f-date'),status:rec>=tot?'Paid':rec>0?'Partial':'Pending'};type='payments';
+  } else if(currentPage==='workers'){
+    if(!g('f-name')){showToast('Naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    item={name:g('f-name'),role:g('f-role')||'Helper',site:g('f-site'),days:parseInt(g('f-days'))||0,rate:parseInt(g('f-rate'))||0,advance:parseInt(g('f-advance'))||0,status:g('f-status')||'Pending'};type='workers';
+  }
+  let ok;
+  if(editId) ok=await updateItem(type,editId,item);
+  else ok=await addItem(type,item);
+  if(ok){showToast('✅ Saved!','success');closeModal();showPage(currentPage);}
+  btn.disabled=false;btn.textContent='✅ Save Karo';
+};
+
+window.delItem=async(type,id)=>{
+  if(currentUser.isDemo){showToast('Demo mein delete nahi hota!','error');return;}
+  if(!confirm('Delete karna chahte ho?'))return;
+  const ok=await deleteItem2(type,id);
+  if(ok){showToast('Deleted!');showPage(currentPage);}
+};
+
+window.closeModal=()=>{document.getElementById('modal').classList.remove('active');editId=null;};
+window.filterT=(inp,id)=>{const v=inp.value.toLowerCase();document.querySelectorAll(`#${id} tbody tr`).forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?'':'none');};
+window.showToast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);};
+</script>
+</body>
+</html>
