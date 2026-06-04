@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteSaathi — Construction Ka Digital Saathi</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2D7A4F;
+    --green-light: #3EA066;
+    --green-dark: #1A4D31;
+    --green-pale: #E8F5EE;
+    --green-glow: rgba(45,122,79,0.15);
+    --orange: #E8762A;
+    --cream: #FAFAF7;
+    --dark: #0F1F15;
+    --gray: #6B7C70;
+    --border: #D4E8DC;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 26px; font-weight: 700;
+    color: var(--green-dark);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo span { color: var(--orange); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--gray); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green); }
+  .nav-cta {
+    background: var(--green);
+    color: white; border: none;
+    padding: 10px 24px; border-radius: 6px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Noto Sans', sans-serif;
+  }
+  .nav-cta:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, var(--green-light) 100%);
+    display: flex; align-items: center;
+    padding: 80px 5% 60px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -50%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -20%; left: -5%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(232,118,42,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-content { max-width: 560px; z-index: 2; animation: fadeUp 0.8s ease; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 6px 16px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 700; color: white;
+    line-height: 1.15; margin-bottom: 20px;
+  }
+  .hero h1 span { color: #FFD166; }
+  .hero p {
+    font-size: 17px; color: rgba(255,255,255,0.85);
+    line-height: 1.7; margin-bottom: 36px;
+  }
+  .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--orange); color: white;
+    padding: 14px 32px; border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all 0.2s; font-family: 'Noto Sans', sans-serif;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { background: #d4681f; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,118,42,0.4); }
+  .btn-secondary {
+    background: transparent; color: white;
+    padding: 14px 32px; border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; border: 2px solid rgba(255,255,255,0.5);
+    transition: all 0.2s; font-family: 'Noto Sans', sans-serif;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: white; }
+  .hero-stats {
+    display: flex; gap: 32px; margin-top: 48px;
+    padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .stat-item { color: white; }
+  .stat-num { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+  .hero-visual {
+    flex: 1; display: flex; justify-content: flex-end;
+    z-index: 2; padding-left: 40px;
+  }
+  .app-mockup {
+    background: white; border-radius: 20px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+    width: 300px; overflow: hidden;
+    animation: float 3s ease-in-out infinite;
+  }
+  .mockup-header {
+    background: var(--green); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mockup-title { color: white; font-size: 14px; font-weight: 600; font-family: 'Rajdhani', sans-serif; }
+  .mockup-dots { display: flex; gap: 4px; }
+  .mockup-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+  .mockup-body { padding: 16px; }
+  .mockup-card {
+    background: var(--green-pale); border-radius: 10px;
+    padding: 12px; margin-bottom: 10px;
+    border-left: 3px solid var(--green);
+  }
+  .mockup-card-title { font-size: 11px; font-weight: 600; color: var(--green-dark); margin-bottom: 4px; }
+  .mockup-card-val { font-size: 18px; font-weight: 700; color: var(--green); font-family: 'Rajdhani', sans-serif; }
+  .mockup-card-sub { font-size: 10px; color: var(--gray); }
+  .mockup-row { display: flex; gap: 8px; }
+  .mockup-row .mockup-card { flex: 1; }
+  .mockup-list-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 11px;
+  }
+  .mockup-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .mockup-dot.orange { background: var(--orange); }
+  .mockup-list-name { font-weight: 500; color: var(--dark); flex: 1; }
+  .mockup-status { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+  .status-green { background: var(--green-pale); color: var(--green); }
+  .status-orange { background: #FEF0E7; color: var(--orange); }
+
+  /* PROBLEMS */
+  .section { padding: 80px 5%; }
+  .section-tag {
+    display: inline-block; background: var(--green-pale);
+    color: var(--green); font-size: 12px; font-weight: 600;
+    padding: 4px 14px; border-radius: 20px; margin-bottom: 14px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(28px, 4vw, 42px); font-weight: 700;
+    color: var(--dark); margin-bottom: 14px; line-height: 1.2;
+  }
+  .section-sub { font-size: 16px; color: var(--gray); max-width: 560px; line-height: 1.7; margin-bottom: 48px; }
+
+  .problems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .problem-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px;
+    transition: all 0.3s;
+  }
+  .problem-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px var(--green-glow); border-color: var(--green); }
+  .problem-icon { font-size: 32px; margin-bottom: 14px; }
+  .problem-title { font-size: 15px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+  .problem-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+  /* FEATURES */
+  .features-bg { background: white; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .feature-card {
+    background: var(--cream); border-radius: 14px;
+    padding: 28px; border: 1px solid var(--border);
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--green), var(--green-light));
+    transform: scaleX(0); transition: transform 0.3s; transform-origin: left;
+  }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px var(--green-glow); }
+  .feature-num {
+    font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700;
+    color: var(--green-pale); position: absolute; top: 16px; right: 20px;
+  }
+  .feature-icon {
+    width: 48px; height: 48px; background: var(--green-pale);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .feature-title { font-size: 16px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+  .feature-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+  /* HOW IT WORKS */
+  .steps-container { display: flex; flex-direction: column; gap: 0; max-width: 700px; margin: 0 auto; }
+  .step-item { display: flex; gap: 24px; padding: 32px 0; position: relative; }
+  .step-item:not(:last-child)::after {
+    content: ''; position: absolute; left: 19px; top: 72px;
+    width: 2px; height: calc(100% - 40px);
+    background: linear-gradient(var(--green), var(--border));
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--green); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700;
+    flex-shrink: 0; z-index: 1;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-size: 18px; font-weight: 600; color: var(--dark); margin-bottom: 8px; font-family: 'Rajdhani', sans-serif; }
+  .step-desc { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+  /* PRICING */
+  .pricing-bg { background: var(--green-dark); }
+  .pricing-bg .section-title { color: white; }
+  .pricing-bg .section-sub { color: rgba(255,255,255,0.7); }
+  .pricing-bg .section-tag { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 900px; }
+  .pricing-card {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px; padding: 32px; transition: all 0.3s;
+  }
+  .pricing-card.popular {
+    background: white; border-color: white;
+    transform: scale(1.03);
+  }
+  .pricing-card:hover { transform: translateY(-4px) scale(1.01); }
+  .pricing-card.popular:hover { transform: translateY(-4px) scale(1.04); }
+  .popular-badge {
+    background: var(--orange); color: white;
+    font-size: 11px; font-weight: 700; padding: 3px 12px;
+    border-radius: 20px; display: inline-block; margin-bottom: 16px;
+  }
+  .plan-name { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+  .pricing-card.popular .plan-name { color: var(--gray); }
+  .plan-price {
+    font-family: 'Rajdhani', sans-serif; font-size: 42px; font-weight: 700;
+    color: white; margin-bottom: 4px;
+  }
+  .pricing-card.popular .plan-price { color: var(--green-dark); }
+  .plan-period { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
+  .pricing-card.popular .plan-period { color: var(--gray); }
+  .plan-features { list-style: none; margin-bottom: 28px; }
+  .plan-features li {
+    font-size: 13px; color: rgba(255,255,255,0.8);
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pricing-card.popular .plan-features li { color: var(--dark); border-color: var(--border); }
+  .plan-features li::before { content: '✓'; color: var(--green-light); font-weight: 700; flex-shrink: 0; }
+  .pricing-card.popular .plan-features li::before { color: var(--green); }
+  .plan-btn {
+    width: 100%; padding: 12px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: transparent; color: white; transition: all 0.2s;
+    font-family: 'Noto Sans', sans-serif;
+  }
+  .pricing-card.popular .plan-btn { background: var(--green); border-color: var(--green); color: white; }
+  .plan-btn:hover { background: rgba(255,255,255,0.15); }
+  .pricing-card.popular .plan-btn:hover { background: var(--green-dark); }
+
+  /* CONTACT */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .contact-info h2 { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700; margin-bottom: 16px; }
+  .contact-item { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .contact-icon { width: 44px; height: 44px; background: var(--green-pale); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .contact-text { font-size: 14px; color: var(--gray); }
+  .contact-text strong { display: block; color: var(--dark); font-size: 15px; margin-bottom: 2px; }
+  .contact-form { background: white; border-radius: 16px; padding: 36px; border: 1px solid var(--border); box-shadow: 0 8px 32px var(--green-glow); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--dark); margin-bottom: 6px; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px; font-family: 'Noto Sans', sans-serif;
+    color: var(--dark); background: var(--cream); transition: border 0.2s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--green); background: white; }
+  .form-group textarea { height: 100px; resize: none; }
+  .form-submit {
+    width: 100%; padding: 13px; background: var(--green);
+    color: white; border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    font-family: 'Noto Sans', sans-serif; transition: all 0.2s;
+  }
+  .form-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark); color: rgba(255,255,255,0.7);
+    padding: 40px 5%; text-align: center;
+  }
+  footer .logo { justify-content: center; margin-bottom: 12px; color: white; }
+  footer p { font-size: 13px; margin-bottom: 8px; }
+  footer .footer-links { display: flex; gap: 24px; justify-content: center; margin-top: 16px; }
+  footer .footer-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; }
+
+  /* WHATSAPP */
+  .whatsapp-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 99;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #25D366; color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; text-decoration: none;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+    transition: all 0.2s; animation: pulse 2s infinite;
+  }
+  .whatsapp-btn:hover { transform: scale(1.1); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border);
+    background: white; color: var(--gray); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans', sans-serif;
+  }
+  .tab-btn.active { background: var(--green); color: white; border-color: var(--green); }
+  .tab-content { display: none; }
+  .tab-content.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .mini-feature {
+    background: white; border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .mini-icon { font-size: 20px; flex-shrink: 0; }
+  .mini-title { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+  .mini-desc { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.4); } 50% { box-shadow: 0 4px 30px rgba(37,211,102,0.7); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero { flex-direction: column; text-align: center; }
+    .hero-visual { display: none; }
+    .hero-stats { justify-content: center; }
+    .hero-btns { justify-content: center; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">🏗️ Site<span>Saathi</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">Kaise Kaam Karta Hai</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Free Demo Lo</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🇮🇳 India Ka Pehla Construction Management App</div>
+    <h1>Construction Ka <span>Digital Saathi</span> — SiteSaathi</h1>
+    <p>Site updates, material tracking, payment aur workers — sab ek jagah. WhatsApp chhodo, SiteSaathi apnao!</p>
+    <div class="hero-btns">
+      <a href="https://wa.me/916263631635" class="btn-primary">📱 Free Demo Book Karo</a>
+      <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Features Dekho →</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-num">7.5M+</div><div class="stat-label">Contractors India Mein</div></div>
+      <div class="stat-item"><div class="stat-num">₹999</div><div class="stat-label">Se Shuru</div></div>
+      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Hindi Support</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="app-mockup">
+      <div class="mockup-header">
+        <span class="mockup-title">🏗️ SiteSaathi Dashboard</span>
+        <div class="mockup-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-row">
+          <div class="mockup-card"><div class="mockup-card-title">Active Sites</div><div class="mockup-card-val">6</div><div class="mockup-card-sub">2 delayed</div></div>
+          <div class="mockup-card"><div class="mockup-card-title">Pending ₹</div><div class="mockup-card-val">4.2L</div><div class="mockup-card-sub">3 clients</div></div>
+        </div>
+        <div class="mockup-list-item"><span class="mockup-dot"></span><span class="mockup-list-name">Sharma Villa</span><span class="mockup-status status-green">On Track</span></div>
+        <div class="mockup-list-item"><span class="mockup-dot orange"></span><span class="mockup-list-name">MG Road Shop</span><span class="mockup-status status-orange">Delayed</span></div>
+        <div class="mockup-list-item"><span class="mockup-dot"></span><span class="mockup-list-name">Verma Office</span><span class="mockup-status status-green">On Track</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="section">
+  <div style="text-align:center;">
+    <span class="section-tag">Contractor Ki Problems</span>
+    <h2 class="section-title">Yeh Problems Tumhari Bhi Hain Na?</h2>
+    <p class="section-sub" style="margin: 0 auto 48px;">India ke 7.5 million contractors aaj bhi WhatsApp aur Excel se kaam chalate hain.</p>
+  </div>
+  <div class="problems-grid">
+    <div class="problem-card"><div class="problem-icon">😤</div><div class="problem-title">Site ka koi record nahi</div><div class="problem-desc">Roz ka kaam WhatsApp groups mein kho jaata hai. Kya hua, kab hua — kuch pata nahi.</div></div>
+    <div class="problem-card"><div class="problem-icon">💸</div><div class="problem-title">Payment track nahi hoti</div><div class="problem-desc">Client se kitna lena hai, kitna mila — hisaab ki copy kahan rakh di, yaad nahi.</div></div>
+    <div class="problem-card"><div class="problem-icon">🧱</div><div class="problem-title">Material waste hota hai</div><div class="problem-desc">Stock ka hisaab nahi — kabhi zyada order, kabhi khatam. Paisa barbaad.</div></div>
+    <div class="problem-card"><div class="problem-icon">👷</div><div class="problem-title">Worker salary confusion</div><div class="problem-desc">Kitne din aaya, kitna due — workers se aaye din jhagda.</div></div>
+    <div class="problem-card"><div class="problem-icon">📞</div><div class="problem-title">Client baar baar call karta hai</div><div class="problem-desc">"Kaam kab hoga?" — yeh sawaal rozana sunna padta hai.</div></div>
+    <div class="problem-card"><div class="problem-icon">📊</div><div class="problem-title">Profit kya hua pata nahi</div><div class="problem-desc">Project khatam hua — kitna kamaya, kitna gaya — andhera.</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section features-bg" id="features">
+  <span class="section-tag">Features</span>
+  <h2 class="section-title">SiteSaathi Mein Kya Kya Hai?</h2>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('contractor')">🏗️ Contractor</button>
+    <button class="tab-btn" onclick="showTab('client')">🏠 Client</button>
+    <button class="tab-btn" onclick="showTab('advanced')">🚀 Advanced</button>
+  </div>
+
+  <div id="contractor" class="tab-content active">
+    <div class="mini-feature"><span class="mini-icon">📋</span><div><div class="mini-title">Site Daily Updates</div><div class="mini-desc">Har din ka kaam record karo — photo ke saath</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">🧱</span><div><div class="mini-title">Material Tracking</div><div class="mini-desc">Order, mila, baaki — auto calculate</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">💰</span><div><div class="mini-title">Payment Tracker</div><div class="mini-desc">Client se lena, mila, pending — ek jagah</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">👷</span><div><div class="mini-title">Worker Salary</div><div class="mini-desc">Din × Rate = Total — auto calculate</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">🧾</span><div><div class="mini-title">Invoice Generator</div><div class="mini-desc">1 click mein GST invoice ready</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">📈</span><div><div class="mini-title">Profit/Loss Dashboard</div><div class="mini-desc">Har project ka real profit dekho</div></div></div>
+  </div>
+
+  <div id="client" class="tab-content">
+    <div class="mini-feature"><span class="mini-icon">📸</span><div><div class="mini-title">Live Site Photos</div><div class="mini-desc">Ghar baithe apni site dekho</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">📊</span><div><div class="mini-title">Progress Tracking</div><div class="mini-desc">Kaam kitna complete — % mein dekho</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">💳</span><div><div class="mini-title">Payment History</div><div class="mini-desc">Kitna diya, kitna baaki — transparent</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">💬</span><div><div class="mini-title">Contractor Chat</div><div class="mini-desc">Seedha app mein baat karo</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">🔔</span><div><div class="mini-title">Delay Alerts</div><div class="mini-desc">Kaam late ho toh auto notification</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">📁</span><div><div class="mini-title">Documents</div><div class="mini-desc">NOC, permits sab safe rakho</div></div></div>
+  </div>
+
+  <div id="advanced" class="tab-content">
+    <div class="mini-feature"><span class="mini-icon">🤖</span><div><div class="mini-title">AI Material Estimator</div><div class="mini-desc">Area batao — material auto estimate</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">⚠️</span><div><div class="mini-title">Delay Predictor</div><div class="mini-desc">Project kitna late hoga — AI batayega</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">📱</span><div><div class="mini-title">Offline Mode</div><div class="mini-desc">Internet nahi — app chalti rahegi</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">🏪</span><div><div class="mini-title">Contractor Marketplace</div><div class="mini-desc">Client seedha hire kare</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">🌍</span><div><div class="mini-title">NRI Support</div><div class="mini-desc">Videsh se India ki site dekho</div></div></div>
+    <div class="mini-feature"><span class="mini-icon">🔗</span><div><div class="mini-title">WhatsApp Integration</div><div class="mini-desc">Auto updates WhatsApp pe</div></div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how" style="background: var(--green-pale);">
+  <div style="text-align:center;">
+    <span class="section-tag">Process</span>
+    <h2 class="section-title">Kaise Shuru Karein?</h2>
+    <p class="section-sub" style="margin: 0 auto 48px;">Sirf 4 simple steps — 15 minute mein ready!</p>
+  </div>
+  <div class="steps-container">
+    <div class="step-item"><div class="step-num">1</div><div class="step-content"><div class="step-title">WhatsApp Pe Demo Book Karo</div><div class="step-desc">+91 6263631635 pe WhatsApp karo — free demo schedule ho jaayega 24 ghante mein.</div></div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-content"><div class="step-title">Account Setup Karo</div><div class="step-desc">Tumhara naam, sites aur team — sab 15 minute mein setup ho jaata hai. Hum help karenge.</div></div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-content"><div class="step-title">Sites Add Karo</div><div class="step-desc">Apni current sites add karo — workers, material, client sab ek baar daalo. Ready!</div></div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-content"><div class="step-title">Roz Use Karo — Paisa Bachao</div><div class="step-desc">Har subah 5 minute mein site update. Material alert. Payment track. Sab automatic!</div></div></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-bg" id="pricing">
+  <span class="section-tag">Pricing</span>
+  <h2 class="section-title">Simple Pricing — Koi Chhupa Hua Charge Nahi</h2>
+  <p class="section-sub">7 din free trial — credit card nahi chahiye!</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <p class="plan-name">BASIC</p>
+      <p class="plan-price">₹999</p>
+      <p class="plan-period">per month • 1 site tak</p>
+      <ul class="plan-features">
+        <li>Site daily updates</li>
+        <li>Material tracking</li>
+        <li>Payment tracker</li>
+        <li>Worker salary</li>
+        <li>WhatsApp support</li>
+      </ul>
+      <button class="plan-btn" onclick="window.open('https://wa.me/916263631635?text=Basic plan ke baare mein jaanna chahta hoon')">Shuru Karo</button>
+    </div>
+    <div class="pricing-card popular">
+      <span class="popular-badge">⭐ SABSE POPULAR</span>
+      <p class="plan-name">STANDARD</p>
+      <p class="plan-price">₹1,999</p>
+      <p class="plan-period">per month • 3 sites tak</p>
+      <ul class="plan-features">
+        <li>Sab Basic features</li>
+        <li>Client dashboard</li>
+        <li>Photo upload</li>
+        <li>Invoice generator</li>
+        <li>Profit/Loss report</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="plan-btn" onclick="window.open('https://wa.me/916263631635?text=Standard plan ke baare mein jaanna chahta hoon')">Free Trial Shuru Karo</button>
+    </div>
+    <div class="pricing-card">
+      <p class="plan-name">PRO</p>
+      <p class="plan-price">₹3,999</p>
+      <p class="plan-period">per month • Unlimited sites</p>
+      <ul class="plan-features">
+        <li>Sab Standard features</li>
+        <li>AI material estimator</li>
+        <li>Offline mode</li>
+        <li>Marketplace listing</li>
+        <li>Custom reports</li>
+        <li>Dedicated manager</li>
+      </ul>
+      <button class="plan-btn" onclick="window.open('https://wa.me/916263631635?text=Pro plan ke baare mein jaanna chahta hoon')">Shuru Karo</button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="contact-grid">
+    <div class="contact-info">
+      <span class="section-tag">Contact</span>
+      <h2 class="section-title" style="font-family:'Rajdhani',sans-serif;">Baat Karte Hain!</h2>
+      <p style="color:var(--gray); font-size:15px; line-height:1.7; margin-bottom:32px;">Free demo ke liye abhi contact karo. 24 ghante mein reply guaranteed!</p>
+      <div class="contact-item">
+        <div class="contact-icon">📱</div>
+        <div class="contact-text"><strong>WhatsApp / Call</strong>+91 6263631635</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">🕐</div>
+        <div class="contact-text"><strong>Working Hours</strong>Subah 9 baje se Raat 9 baje tak</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">🌍</div>
+        <div class="contact-text"><strong>Service Area</strong>Pan India — Indore, Bhopal, Nagpur aur sab jagah</div>
+      </div>
+    </div>
+    <div class="contact-form">
+      <h3 style="font-family:'Rajdhani',sans-serif; font-size:22px; margin-bottom:24px; color:var(--green-dark);">Free Demo Book Karo</h3>
+      <div class="form-group"><label>Aapka Naam</label><input type="text" placeholder="Jaise: Ramesh Kumar"></div>
+      <div class="form-group"><label>WhatsApp Number</label><input type="tel" placeholder="+91 XXXXX XXXXX"></div>
+      <div class="form-group"><label>Aap Kya Hain?</label>
+        <select><option>Contractor</option><option>Builder</option><option>Client (Ghar banwana hai)</option><option>Developer</option></select>
+      </div>
+      <div class="form-group"><label>City</label><input type="text" placeholder="Jaise: Indore"></div>
+      <button class="form-submit" onclick="submitForm()">📱 WhatsApp Pe Demo Book Karo</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">🏗️ Site<span style="color:var(--orange)">Saathi</span></div>
+  <p>India Ka Construction Ka Digital Saathi</p>
+  <p style="font-size:12px; opacity:0.5;">© 2026 SiteSaathi. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Use</a>
+    <a href="https://wa.me/916263631635">Contact</a>
+  </div>
+</footer>
+
+<!-- WHATSAPP FLOATING -->
+<a href="https://wa.me/916263631635?text=SiteSaathi ke baare mein jaanna chahta hoon" class="whatsapp-btn" target="_blank">💬</a>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function submitForm() {
+  const name = document.querySelector('input[placeholder="Jaise: Ramesh Kumar"]').value;
+  const phone = document.querySelector('input[placeholder="+91 XXXXX XXXXX"]').value;
+  const city = document.querySelector('input[placeholder="Jaise: Indore"]').value;
+  const role = document.querySelector('select').value;
+  const msg = `Namaste! Main ${name || 'ek contractor'} hoon, ${city || ''} se. Main ${role} hoon aur SiteSaathi ka free demo lena chahta hoon. Phone: ${phone || 'N/A'}`;
+  window.open(`https://wa.me/916263631635?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
