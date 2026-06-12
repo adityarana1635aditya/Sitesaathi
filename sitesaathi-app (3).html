@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteSaathi — Construction Ka Digital Saathi</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--green:#2D7A4F;--green-light:#3EA066;--green-dark:#1A4D31;--green-pale:#E8F5EE;--orange:#E8762A;--cream:#FAFAF7;--dark:#0F1F15;--gray:#6B7C70;--border:#D4E8DC;--red:#E05252;--red-pale:#FBEAEA;--yellow:#F0A500;--yellow-pale:#FEF6E4;--blue:#2563EB;--blue-pale:#EFF6FF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans',sans-serif;background:var(--cream);color:var(--dark);}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
+.loading-logo{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#fff;margin-bottom:8px;}
+.loading-logo span{color:var(--orange);}
+.loading-sub{color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:32px;}
+.loading-bar{width:200px;height:4px;background:rgba(255,255,255,0.2);border-radius:10px;overflow:hidden;}
+.loading-fill{height:100%;background:var(--orange);border-radius:10px;animation:load 2s ease-in-out infinite;}
+@keyframes load{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
+
+/* AUTH */
+.auth-wrap{background:linear-gradient(135deg,var(--green-dark),var(--green));min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-box{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:420px;box-shadow:0 40px 80px rgba(0,0,0,0.25);animation:fadeUp 0.4s ease;}
+.auth-logo{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;color:var(--green-dark);text-align:center;margin-bottom:4px;}
+.auth-logo span{color:var(--orange);}
+.auth-tag{text-align:center;color:var(--gray);font-size:13px;margin-bottom:24px;}
+.auth-tabs{display:flex;background:var(--cream);border-radius:10px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:9px;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--gray);cursor:pointer;border-radius:7px;transition:all 0.2s;font-family:'Noto Sans',sans-serif;}
+.auth-tab.active{background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--dark);margin-bottom:5px;}
+.req{color:var(--red);}
+.fg input,.fg select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Noto Sans',sans-serif;color:var(--dark);background:var(--cream);outline:none;transition:all 0.2s;}
+.fg input:focus,.fg select:focus{border-color:var(--green);background:#fff;}
+.fg input.err{border-color:var(--red);background:var(--red-pale);}
+.err-msg{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+.err-msg.show{display:block;}
+.auth-btn{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:all 0.2s;margin-top:4px;}
+.auth-btn:hover{background:var(--green-dark);}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.demo-btn{width:100%;padding:11px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:all 0.2s;margin-top:8px;}
+.demo-btn.blue{background:var(--blue);}
+.demo-btn:hover{opacity:0.9;}
+.auth-divider{text-align:center;color:var(--gray);font-size:12px;margin:14px 0;}
+.pass-wrap{position:relative;}
+.pass-wrap input{padding-right:40px;}
+.pass-wrap button{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.role-card{border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff;}
+.role-card:hover,.role-card.selected{border-color:var(--green);background:var(--green-pale);}
+.role-card .ri{font-size:24px;margin-bottom:4px;}
+.role-card .rl{font-size:12px;font-weight:600;color:var(--dark);}
+.role-card .rs{font-size:10px;color:var(--gray);}
+
+/* APP */
+.sidebar{width:240px;background:var(--green-dark);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;transition:transform 0.3s;}
+.sb-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;}
+.sb-logo span{color:var(--orange);}
+.sb-user{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:10px;}
+.u-av{width:36px;height:36px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;flex-shrink:0;}
+.u-nm{font-size:13px;font-weight:500;color:#fff;}
+.u-rl{font-size:11px;color:rgba(255,255,255,0.6);}
+.sb-nav{padding:8px 0;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 16px;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.2s;font-size:13px;font-weight:500;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,0.12);color:#fff;border-left-color:var(--orange);}
+.nav-icon{font-size:17px;width:22px;text-align:center;}
+.sb-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.1);}
+.logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:13px;background:none;border:none;font-family:'Noto Sans',sans-serif;width:100%;padding:8px;border-radius:8px;transition:all 0.2s;}
+.logout-btn:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.main-content{margin-left:240px;flex:1;}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.pg-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--dark);}
+.add-btn{background:var(--green);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Noto Sans',sans-serif;transition:all 0.2s;}
+.add-btn:hover{background:var(--green-dark);}
+.content{padding:24px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);transition:all 0.2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(45,122,79,0.1);}
+.stat-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.stat-icon{font-size:26px;}
+.stat-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--dark);}
+.stat-lbl{font-size:12px;color:var(--gray);margin-top:3px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.dash-card{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.dash-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.dash-title{font-size:14px;font-weight:600;color:var(--dark);}
+.view-all{font-size:12px;color:var(--green);cursor:pointer;font-weight:500;}
+.dash-item{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.15s;}
+.dash-item:last-child{border-bottom:none;}
+.dash-item:hover{background:var(--cream);}
+.di-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.di-info{flex:1;}
+.di-name{font-size:13px;font-weight:500;color:var(--dark);}
+.di-sub{font-size:11px;color:var(--gray);margin-top:1px;}
+.prog-bar{background:var(--border);border-radius:10px;height:5px;overflow:hidden;margin-top:5px;}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--green-light));}
+
+/* TABLE */
+.tbl-wrap{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.tbl-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:7px 12px;flex:1;max-width:280px;}
+.search-box input{border:none;background:transparent;outline:none;font-size:13px;font-family:'Noto Sans',sans-serif;width:100%;color:var(--dark);}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--cream);}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
+td{padding:12px 14px;font-size:13px;color:var(--dark);border-top:1px solid var(--border);}
+tr:hover td{background:#fafff7;}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;}
+.bg-green{background:var(--green-pale);color:var(--green);}
+.bg-orange{background:#FEF0E7;color:var(--orange);}
+.bg-red{background:var(--red-pale);color:var(--red);}
+.bg-yellow{background:var(--yellow-pale);color:var(--yellow);}
+.bg-blue{background:var(--blue-pale);color:var(--blue);}
+.act-btns{display:flex;gap:5px;}
+.btn-edit{background:var(--green-pale);color:var(--green);border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+.btn-del{background:var(--red-pale);color:var(--red);border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
+.modal-overlay.active{display:flex;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:92vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,0.2);animation:slideUp 0.2s ease;}
+.m-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;}
+.m-title{font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:var(--dark);}
+.m-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);}
+.m-body{padding:22px;}
+.m-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;}
+.btn-cancel{padding:9px 18px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans',sans-serif;color:var(--gray);}
+.btn-save{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+.btn-save:disabled{opacity:0.6;cursor:not-allowed;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--gray);}
+.empty .ei{font-size:48px;margin-bottom:14px;}
+.empty p{font-size:14px;margin-bottom:18px;}
+
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* CLIENT */
+.client-welcome{background:linear-gradient(135deg,var(--blue),#1d4ed8);border-radius:14px;padding:24px;color:#fff;margin-bottom:20px;}
+.client-welcome h2{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.client-welcome p{font-size:14px;opacity:0.85;}
+.site-prog-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:14px;}
+.spc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.spc-name{font-size:16px;font-weight:600;color:var(--dark);}
+.spc-loc{font-size:12px;color:var(--gray);margin-top:2px;}
+.spc-prog{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--green);}
+.spc-bar{background:var(--border);border-radius:10px;height:8px;overflow:hidden;margin-bottom:10px;}
+.spc-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--green-light));}
+.spc-update{font-size:12px;color:var(--gray);background:var(--cream);padding:8px 12px;border-radius:8px;}
+.sum-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.sum-card{background:#fff;border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border);}
+.sum-val{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;}
+.sum-lbl{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* CONNECT CODE */
+.connect-box{background:var(--green-pale);border:1px solid var(--green);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;}
+.connect-code{font-family:monospace;font-size:28px;font-weight:700;color:var(--green-dark);letter-spacing:8px;margin:10px 0;}
+.connect-copy{background:var(--green);color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans',sans-serif;}
+
+/* MOBILE */
+.mob-head{display:none;}
+.sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:49;display:none;}
+.sb-overlay.active{display:block;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-content{margin-left:0;}
+  .mob-head{display:flex;align-items:center;justify-content:space-between;background:var(--green-dark);padding:12px 16px;position:sticky;top:0;z-index:60;}
+  .mob-logo{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+  .mob-logo span{color:var(--orange);}
+  .mob-ham{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+  .topbar{display:none;}
+  .dash-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .content{padding:14px;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.whatsapp-fab{position:fixed;bottom:24px;right:24px;z-index:98;width:50px;height:50px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,0.4);transition:all 0.2s;}
+.whatsapp-fab:hover{transform:scale(1.1);}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">🏗️ Site<span>Saathi</span></div>
+  <div class="loading-sub">Loading...</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<!-- AUTH -->
+<div class="screen" id="screen-auth">
+<div class="auth-wrap">
+<div class="auth-box">
+  <div class="auth-logo">🏗️ Site<span>Saathi</span></div>
+  <div class="auth-tag">Construction Ka Digital Saathi</div>
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="authTab('login')">Login Karo</button>
+    <button class="auth-tab" onclick="authTab('signup')">Sign Up Karo</button>
+  </div>
+  <!-- LOGIN -->
+  <div id="pane-login">
+    <div class="fg"><label>Email <span class="req">*</span></label><input id="l-email" type="email" placeholder="aapka@email.com"></div>
+    <div class="fg"><label>Password <span class="req">*</span></label>
+      <div class="pass-wrap"><input id="l-pass" type="password" placeholder="Password daalo"><button type="button" onclick="togglePass('l-pass',this)">👁️</button></div>
+    </div>
+    <button class="auth-btn" id="login-btn" onclick="doLogin()">🚀 Login Karo</button>
+    <div class="auth-divider">— Demo accounts —</div>
+    <button class="demo-btn" onclick="demoLogin('contractor')">⚡ Contractor Demo</button>
+    <button class="demo-btn blue" onclick="demoLogin('client')" style="margin-top:8px">🏠 Client Demo</button>
+  </div>
+  <!-- SIGNUP -->
+  <div id="pane-signup" style="display:none">
+    <div class="fg"><label>Poora Naam <span class="req">*</span></label><input id="s-name" type="text" placeholder="Jaise: Ramesh Kumar"><div class="err-msg" id="e-name">Naam daalna zaroori hai!</div></div>
+    <div class="fg"><label>Mobile <span class="req">*</span></label><input id="s-phone" type="tel" placeholder="+91 XXXXX XXXXX"><div class="err-msg" id="e-phone">Valid 10 digit number daalo!</div></div>
+    <div class="fg"><label>Email <span class="req">*</span></label><input id="s-email" type="email" placeholder="aapka@email.com"><div class="err-msg" id="e-email">Valid email daalo!</div></div>
+    <div class="fg"><label>Aap Kaun Hain? <span class="req">*</span></label>
+      <div class="role-grid">
+        <div class="role-card selected" id="rc-contractor" onclick="selRole('contractor')"><div class="ri">🏗️</div><div class="rl">Contractor</div><div class="rs">Site manage karta hoon</div></div>
+        <div class="role-card" id="rc-client" onclick="selRole('client')"><div class="ri">🏠</div><div class="rl">Client</div><div class="rs">Ghar banwa raha hoon</div></div>
+      </div>
+    </div>
+    <div class="fg"><label>City <span class="req">*</span></label><input id="s-city" type="text" placeholder="Jaise: Indore"><div class="err-msg" id="e-city">City daalni zaroori hai!</div></div>
+    <div class="fg"><label>Password <span class="req">*</span></label>
+      <div class="pass-wrap"><input id="s-pass" type="password" placeholder="Kam se kam 6 characters"><button type="button" onclick="togglePass('s-pass',this)">👁️</button></div>
+      <div class="err-msg" id="e-pass">Password kam se kam 6 characters!</div>
+    </div>
+    <div class="fg"><label>Password Confirm <span class="req">*</span></label>
+      <div class="pass-wrap"><input id="s-pass2" type="password" placeholder="Password dobara daalo"><button type="button" onclick="togglePass('s-pass2',this)">👁️</button></div>
+      <div class="err-msg" id="e-pass2">Passwords match nahi kar rahe!</div>
+    </div>
+    <!-- CLIENT: No code needed at signup -->
+    <div id="client-code-section" style="display:none">
+      <p style="font-size:12px;color:var(--gray);background:var(--green-pale);padding:10px;border-radius:8px;">✅ Account banane ke baad contractor se <strong>Site Code</strong> maango aur dashboard mein add karo!</p>
+    </div>
+    <button class="auth-btn" id="signup-btn" onclick="doSignup()">✅ Account Banao</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- APP -->
+<div class="screen" id="screen-app">
+  <div class="mob-head">
+    <button class="mob-ham" onclick="toggleSB()">☰</button>
+    <div class="mob-logo">🏗️ Site<span>Saathi</span></div>
+    <div style="width:32px"></div>
+  </div>
+  <div class="sb-overlay" id="sb-overlay" onclick="toggleSB()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-logo">🏗️ Site<span>Saathi</span></div>
+    <div class="sb-user">
+      <div class="u-av" id="u-av">A</div>
+      <div><div class="u-nm" id="u-nm">User</div><div class="u-rl" id="u-rl">Contractor</div></div>
+    </div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <div class="sb-foot">
+      <button class="logout-btn" onclick="doLogout()">🚪 Logout Karo</button>
+    </div>
+  </div>
+  <div class="main-content">
+    <div class="topbar">
+      <div class="pg-title" id="pg-title">Dashboard</div>
+      <button class="add-btn" id="add-btn" onclick="openAdd()" style="display:none">+ Add Karo</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="m-head"><div class="m-title" id="m-title">Add</div><button class="m-close" onclick="closeModal()">✕</button></div>
+    <div class="m-body" id="m-body"></div>
+    <div class="m-foot"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" id="save-btn" onclick="saveItem()">✅ Save Karo</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<a href="https://wa.me/916263631635" class="whatsapp-fab" target="_blank">💬</a>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC5UDu0YoSghOVdrb1q2jCKD4Yku9H4vhw",
+  authDomain: "sitesaathii.firebaseapp.com",
+  projectId: "sitesaathii",
+  storageBucket: "sitesaathii.firebasestorage.app",
+  messagingSenderId: "992271653446",
+  appId: "1:992271653446:web:6a32f93f58a4b991ab0847"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ===== STATE =====
+let currentUser = null;
+let currentPage = 'dashboard';
+let editId = null;
+let selRole = 'contractor';
+let unsubscribers = [];
+
+// ===== LOADING =====
+onAuthStateChanged(auth, async (user) => {
+  if(user) {
+    const uDoc = await getDoc(doc(db,'users',user.uid));
+    if(uDoc.exists()) {
+      currentUser = {uid:user.uid, email:user.email, ...uDoc.data(), isDemo:false};
+      hideLoading();
+      enterApp();
+    } else {
+      hideLoading();
+      showScreen('auth');
+    }
+  } else {
+    hideLoading();
+    showScreen('auth');
+  }
+});
+
+function hideLoading() {
+  document.getElementById('loading').style.display='none';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+// ===== AUTH FUNCTIONS =====
+window.authTab = (t) => {
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='signup')));
+  document.getElementById('pane-login').style.display=t==='login'?'block':'none';
+  document.getElementById('pane-signup').style.display=t==='signup'?'block':'none';
+};
+
+window.togglePass = (id,btn) => {
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'👁️':'🙈';
+};
+
+window.selRole = (r) => {
+  selRole=r;
+  document.getElementById('rc-contractor').classList.toggle('selected',r==='contractor');
+  document.getElementById('rc-client').classList.toggle('selected',r==='client');
+  document.getElementById('client-code-section').style.display=r==='client'?'block':'none';
+};
+
+function showErr(id,show,msg) {
+  const el=document.getElementById('e-'+id);
+  if(el){el.classList.toggle('show',show);if(msg)el.textContent=msg;}
+  const inp=document.getElementById('s-'+id);
+  if(inp)inp.classList.toggle('err',show);
+}
+
+window.doLogin = async () => {
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  if(!email||!pass){showToast('Email aur password daalo!','error');return;}
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Login ho raha hai...';
+  try {
+    await signInWithEmailAndPassword(auth,email,pass);
+  } catch(e) {
+    btn.disabled=false;btn.textContent='🚀 Login Karo';
+    showToast('Email ya password galat hai!','error');
+  }
+};
+
+window.doSignup = async () => {
+  let ok=true;
+  const name=document.getElementById('s-name').value.trim();
+  const phone=document.getElementById('s-phone').value.trim();
+  const email=document.getElementById('s-email').value.trim();
+  const city=document.getElementById('s-city').value.trim();
+  const pass=document.getElementById('s-pass').value;
+  const pass2=document.getElementById('s-pass2').value;
+  const code=document.getElementById('s-code')?.value.trim();
+
+  if(!name){showErr('name',true);ok=false;}else showErr('name',false);
+  if(!phone||phone.replace(/\D/g,'').length<10){showErr('phone',true);ok=false;}else showErr('phone',false);
+  if(!email||!email.includes('@')){showErr('email',true);ok=false;}else showErr('email',false);
+  if(!city){showErr('city',true);ok=false;}else showErr('city',false);
+  if(pass.length<6){showErr('pass',true);ok=false;}else showErr('pass',false);
+  if(pass!==pass2){showErr('pass2',true);ok=false;}else showErr('pass2',false);
+
+  if(!ok)return;
+  const btn=document.getElementById('signup-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Account ban raha hai...';
+
+  try {
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    const connectCode=selRole==='contractor'?Math.random().toString(36).substr(2,6).toUpperCase():null;
+    await setDoc(doc(db,'users',cred.user.uid),{
+      name,phone,email,city,role:selRole,
+      connectCode:connectCode,
+      siteIds:[],
+      createdAt:new Date().toISOString()
+    });
+    showToast('Account ban gaya! Welcome '+name+'! 🎉','success');
+  } catch(e) {
+    btn.disabled=false;btn.textContent='✅ Account Banao';
+    if(e.code==='auth/email-already-in-use') showToast('Yeh email already registered hai!','error');
+    else showToast('Error aaya: '+e.message,'error');
+  }
+};
+
+window.demoLogin = (role) => {
+  currentUser = {
+    uid:'demo-'+role, name:role==='contractor'?'Aditya Demo (Contractor)':'Rahul Demo (Client)',
+    role, city:'Indore', isDemo:true,
+    connectCode:role==='contractor'?'DEMO01':null,
+    contractorId:role==='client'?'demo-contractor':null
+  };
+  enterApp();
+};
+
+window.doLogout = async () => {
+  if(!confirm('Logout karna chahte ho?'))return;
+  unsubscribers.forEach(u=>u());
+  unsubscribers=[];
+  if(!currentUser?.isDemo) await signOut(auth);
+  currentUser=null; currentPage='dashboard';
+  showScreen('auth');
+  document.getElementById('l-email').value='';
+  document.getElementById('l-pass').value='';
+  showToast('Logout ho gaye! 👋');
+};
+
+// ===== DEMO DATA =====
+const DEMO_DATA = {
+  contractor: {
+    sites:[
+      {id:'s1',name:'Sharma Villa',location:'Vijay Nagar, Indore',startDate:'2026-03-01',endDate:'2026-08-01',progress:45,status:'On Track',update:'Foundation complete, brick work shuru hua',budget:800000,paid:500000,siteCode:'SHAR01',photoUrl:'',updatedAt:'2026-06-08T10:00:00Z'},
+      {id:'s2',name:'MG Road Shop',location:'MG Road, Indore',startDate:'2026-04-01',endDate:'2026-07-01',progress:70,status:'Delayed',update:'Plumbing delay ho gayi — 10 din late',budget:250000,paid:250000,siteCode:'MGRDS2',photoUrl:'',updatedAt:'2026-06-07T10:00:00Z'},
+      {id:'s3',name:'Verma Office',location:'Scheme 54, Indore',startDate:'2026-05-01',endDate:'2026-10-01',progress:20,status:'On Track',update:'Foundation kaam chal raha hai',budget:1200000,paid:400000,siteCode:'VERM03',photoUrl:'',updatedAt:'2026-06-09T10:00:00Z'},
+    ],
+    materials:[
+      {id:'m1',site:'Sharma Villa',item:'Cement',ordered:50,received:35,unit:'Bags',supplier:'Shri Cement'},
+      {id:'m2',site:'MG Road Shop',item:'Sariya',ordered:200,received:200,unit:'Kg',supplier:'Gupta Iron'},
+      {id:'m3',site:'Verma Office',item:'Bricks',ordered:5000,received:2000,unit:'Pcs',supplier:'Sharma Brick Works'},
+      {id:'m4',site:'Sharma Villa',item:'Sand',ordered:20,received:8,unit:'Tons',supplier:'Ravi Sand Supplier'},
+    ],
+    payments:[
+      {id:'p1',client:'Sharma Ji',site:'Sharma Villa',total:800000,received:500000,date:'2026-04-15',status:'Partial'},
+      {id:'p2',client:'Gupta Sahab',site:'MG Road Shop',total:250000,received:250000,date:'2026-05-01',status:'Paid'},
+      {id:'p3',client:'Verma Ji',site:'Verma Office',total:1200000,received:400000,date:'2026-05-20',status:'Partial'},
+    ],
+    workers:[
+      {id:'w1',name:'Raju Mistri',role:'Mason',site:'Sharma Villa',days:22,rate:600,advance:2000,status:'Pending'},
+      {id:'w2',name:'Suresh Helper',role:'Helper',site:'MG Road Shop',days:18,rate:400,advance:0,status:'Paid'},
+      {id:'w3',name:'Mohan Electrician',role:'Electrician',site:'Verma Office',days:10,rate:800,advance:1000,status:'Pending'},
+      {id:'w4',name:'Ramesh Plumber',role:'Plumber',site:'Sharma Villa',days:8,rate:700,advance:0,status:'Pending'},
+    ]
+  },
+  client: {
+    sites:[
+      {id:'s1',name:'Sharma Villa',location:'Vijay Nagar, Indore',progress:45,status:'On Track',update:'Foundation complete, brick work shuru hua',budget:800000,paid:500000},
+    ]
+  }
+};
+
+// ===== APP =====
+function enterApp() {
+  showScreen('app');
+  document.getElementById('u-nm').textContent=currentUser.name;
+  document.getElementById('u-av').textContent=currentUser.name[0].toUpperCase();
+  document.getElementById('u-rl').textContent=(currentUser.isDemo?'Demo — ':'')+( currentUser.role==='contractor'?'Contractor':'Client');
+  buildNav();
+  showPage('dashboard');
+}
+
+function buildNav() {
+  const isC=currentUser.role==='contractor';
+  const items=isC?[
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {id:'sites',icon:'🏗️',label:'Site Updates'},
+    {id:'material',icon:'🧱',label:'Material'},
+    {id:'payments',icon:'💰',label:'Payments'},
+    {id:'workers',icon:'👷',label:'Workers'},
+    {id:'profit',icon:'📈',label:'Profit/Loss'},
+    {id:'reports',icon:'📄',label:'AI Reports'},
+    {id:'risk',icon:'⚠️',label:'Risk Score'},
+    {id:'delay',icon:'🔮',label:'Delay Predictor'},
+    {id:'budget',icon:'💸',label:'Budget Alert'},
+    {id:'prices',icon:'📊',label:'Material Prices'},
+    {id:'emi',icon:'🏦',label:'EMI Planner'},
+    {id:'whatsapp',icon:'💬',label:'WhatsApp Bot'},
+    {id:'settings',icon:'⚙️',label:'Settings'},
+  ]:[
+    {id:'dashboard',icon:'📊',label:'Mera Dashboard'},
+    {id:'timeline',icon:'📸',label:'Site Timeline'},
+    {id:'addsitecode',icon:'➕',label:'Site Code Add Karo'},
+  ];
+  document.getElementById('sb-nav').innerHTML=items.map(n=>`<div class="nav-item" id="nav-${n.id}" onclick="showPage('${n.id}')"><span class="nav-icon">${n.icon}</span>${n.label}</div>`).join('');
+}
+
+window.showPage = (page) => {
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-'+page)?.classList.add('active');
+  const titles={dashboard:'📊 Dashboard',sites:'🏗️ Site Updates',material:'🧱 Material',payments:'💰 Payments',workers:'👷 Workers',profit:'📈 Profit / Loss',reports:'📄 AI Reports',risk:'⚠️ Risk Score',delay:'🔮 Delay Predictor',budget:'💸 Budget Alert',prices:'📊 Material Prices',emi:'🏦 EMI Planner',whatsapp:'💬 WhatsApp Bot',settings:'⚙️ Settings',timeline:'📸 Site Timeline',addsitecode:'➕ Site Code Add Karo'};
+  document.getElementById('pg-title').textContent=titles[page]||page;
+  const showAdd=['sites','material','payments','workers'].includes(page)&&currentUser.role==='contractor';
+  const btn=document.getElementById('add-btn');
+  btn.style.display=showAdd?'flex':'none';
+  const labels={sites:'+ Site Add Karo',material:'+ Material Add Karo',payments:'+ Payment Add Karo',workers:'+ Worker Add Karo'};
+  btn.textContent=labels[page]||'+ Add';
+  renderPage(page);
+  if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('active');}
+};
+
+window.toggleSB=()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('sb-overlay').classList.toggle('active');};
+
+// ===== FIRESTORE HELPERS =====
+function col(name){return collection(db,'users',currentUser.uid,name);}
+
+async function getItems(name){
+  if(currentUser.isDemo)return DEMO_DATA[currentUser.role][name]||[];
+  const snap=await getDocs(col(name));
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+async function addItem(name,data){
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota!','error');return false;}
+  await addDoc(col(name),{...data,createdAt:new Date().toISOString()});
+  return true;
+}
+
+async function updateItem(name,id,data){
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota!','error');return false;}
+  await updateDoc(doc(db,'users',currentUser.uid,name,id),data);
+  return true;
+}
+
+async function deleteItem2(name,id){
+  if(currentUser.isDemo){showToast('Demo mein delete nahi hota!','error');return false;}
+  await deleteDoc(doc(db,'users',currentUser.uid,name,id));
+  return true;
+}
+
+// ===== RENDER =====
+async function renderPage(page){
+  const area=document.getElementById('content');
+  area.innerHTML='<div class="empty"><div class="ei">⏳</div><p>Load ho raha hai...</p></div>';
+  if(page==='dashboard') area.innerHTML=currentUser.role==='contractor'?await renderCDash():await renderClientDash();
+  else if(page==='sites') area.innerHTML=await renderSites();
+  else if(page==='material') area.innerHTML=await renderMaterial();
+  else if(page==='payments') area.innerHTML=await renderPayments();
+  else if(page==='workers') area.innerHTML=await renderWorkers();
+  else if(page==='profit') area.innerHTML=await renderProfit();
+  else if(page==='reports') area.innerHTML=await renderReports();
+  else if(page==='risk') area.innerHTML=await renderRiskScore();
+  else if(page==='delay') area.innerHTML=await renderDelayPredictor();
+  else if(page==='budget') area.innerHTML=await renderBudgetAlert();
+  else if(page==='prices') area.innerHTML=await renderMaterialPrices();
+  else if(page==='emi') area.innerHTML=renderEMIPlanner();
+  else if(page==='whatsapp') area.innerHTML=renderWhatsAppBot();
+  else if(page==='settings') area.innerHTML=await renderSettings();
+  else if(page==='timeline') area.innerHTML=await renderTimeline();
+  else if(page==='mycode') area.innerHTML=renderMyCode();
+  else if(page==='addsitecode') area.innerHTML=renderAddSiteCode();
+}
+
+async function renderCDash(){
+  const [sites,materials,payments,workers]=await Promise.all([getItems('sites'),getItems('materials'),getItems('payments'),getItems('workers')]);
+  const pendPay=payments.filter(p=>p.status!=='Paid').reduce((s,p)=>s+(p.total-p.received),0);
+  const lowStock=materials.filter(m=>(m.ordered-m.received)>0).length;
+  const pendW=workers.filter(w=>w.status==='Pending').length;
+  return `
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🏗️</span><span class="stat-badge bg-green">Active</span></div><div class="stat-val">${sites.length}</div><div class="stat-lbl">Total Sites</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">💰</span><span class="stat-badge bg-orange">Baaki</span></div><div class="stat-val">${payments.length?'₹'+(pendPay/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Payment Pending</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🧱</span><span class="stat-badge bg-red">Low</span></div><div class="stat-val">${lowStock}</div><div class="stat-lbl">Material Shortage</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">👷</span><span class="stat-badge bg-yellow">Due</span></div><div class="stat-val">${pendW}</div><div class="stat-lbl">Worker Due</div></div>
+  </div>
+  ${sites.length===0?`<div class="empty"><div class="ei">🏗️</div><p>Koi data nahi. Pehli site add karo!</p><button class="add-btn" onclick="showPage('sites')">+ Site Add Karo</button></div>`:`
+  <div class="dash-grid">
+    <div class="dash-card"><div class="dash-head"><span class="dash-title">Recent Sites</span><span class="view-all" onclick="showPage('sites')">Sab →</span></div>
+    ${sites.slice(0,3).map(s=>`<div class="dash-item"><div class="di-icon" style="background:var(--green-pale)">🏗️</div><div class="di-info"><div class="di-name">${s.name}</div><div class="di-sub">${s.location}</div><div class="prog-bar"><div class="prog-fill" style="width:${s.progress}%"></div></div></div><span class="pill ${s.status==='On Track'?'bg-green':'bg-orange'}">${s.status}</span></div>`).join('')}
+    </div>
+    <div class="dash-card"><div class="dash-head"><span class="dash-title">Payments</span><span class="view-all" onclick="showPage('payments')">Sab →</span></div>
+    ${payments.slice(0,3).map(p=>`<div class="dash-item"><div class="di-icon" style="background:#FEF0E7">💰</div><div class="di-info"><div class="di-name">${p.client}</div><div class="di-sub">₹${p.total.toLocaleString()}</div></div><span class="pill ${p.status==='Paid'?'bg-green':p.status==='Partial'?'bg-yellow':'bg-red'}">${p.status}</span></div>`).join('')}
+    </div>
+  </div>`}`;
+}
+
+async function renderClientDash(){
+  let sites=[];
+  if(currentUser.isDemo){
+    sites=DEMO_DATA.client.sites;
+  } else {
+    // Get client's added site IDs
+    const uDoc=await getDoc(doc(db,'users',currentUser.uid));
+    const siteIds=uDoc.data()?.siteIds||[];
+    if(siteIds.length===0){
+      return `
+      <div class="client-welcome"><h2>Namaste, ${currentUser.name.split(' ')[0]}! 👋</h2><p>Apni site ka live status dekhne ke liye site code add karo!</p></div>
+      <div class="empty"><div class="ei">🏗️</div><p>Abhi koi site nahi hai. Contractor se Site Code maango!</p>
+      <button class="add-btn" onclick="showPage('addsitecode')">➕ Site Code Add Karo</button></div>`;
+    }
+    // Fetch each site
+    for(const siteRef of siteIds){
+      try{
+        const sDoc=await getDoc(doc(db,'users',siteRef.contractorId,'sites',siteRef.siteId));
+        if(sDoc.exists()) sites.push({id:sDoc.id,...sDoc.data()});
+      }catch(e){}
+    }
+  }
+  const totalB=sites.reduce((s,si)=>s+(si.budget||0),0);
+  const totalP=sites.reduce((s,si)=>s+(si.paid||0),0);
+  return `
+  <div class="client-welcome"><h2>Namaste, ${currentUser.name.split(' ')[0]}! 👋</h2><p>Aapki sites ka live status yahan dekho!</p></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🏗️</span><span class="stat-badge bg-green">Active</span></div><div class="stat-val">${sites.length}</div><div class="stat-lbl">Meri Sites</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">💰</span><span class="stat-badge bg-blue">Budget</span></div><div class="stat-val">${totalB?'₹'+(totalB/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Total Budget</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">✅</span><span class="stat-badge bg-green">Paid</span></div><div class="stat-val">${totalP?'₹'+(totalP/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Diya Hua</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">⏳</span><span class="stat-badge bg-orange">Baaki</span></div><div class="stat-val">${totalB?'₹'+((totalB-totalP)/100000).toFixed(1)+'L':'₹0'}</div><div class="stat-lbl">Baaki Dena</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;">📍 Site Progress</h3>
+    <button class="add-btn" onclick="showPage('addsitecode')">➕ Site Add Karo</button>
+  </div>
+  ${sites.map(s=>`<div class="site-prog-card">
+    <div class="spc-top"><div><div class="spc-name">${s.name}</div><div class="spc-loc">📍 ${s.location||''}</div></div><div style="text-align:right"><div class="spc-prog">${s.progress||0}%</div><span class="pill ${s.status==='On Track'?'bg-green':'bg-orange'}">${s.status}</span></div></div>
+    <div class="spc-bar"><div class="spc-fill" style="width:${s.progress||0}%"></div></div>
+    <div class="spc-update">📋 ${s.update||'Koi update nahi'}</div>
+    ${s.budget?`<div style="display:flex;gap:10px;margin-top:10px">
+      <div style="flex:1;text-align:center;background:var(--cream);padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Budget</div><div style="font-weight:600;font-size:13px">₹${s.budget.toLocaleString()}</div></div>
+      <div style="flex:1;text-align:center;background:var(--green-pale);padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Diya</div><div style="font-weight:600;font-size:13px;color:var(--green)">₹${(s.paid||0).toLocaleString()}</div></div>
+      <div style="flex:1;text-align:center;background:#FEF0E7;padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Baaki</div><div style="font-weight:600;font-size:13px;color:var(--orange)">₹${(s.budget-(s.paid||0)).toLocaleString()}</div></div>
+    </div>`:''}
+  </div>`).join('')}`;
+}
+
+function renderMyCode(){
+  return `
+  <div style="max-width:500px;margin:0 auto">
+    <div style="background:var(--green-pale);border:1px solid var(--green);border-radius:12px;padding:20px;margin-bottom:16px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;color:var(--green-dark);margin-bottom:8px">🔗 Site ka Alag Code Kaise Milega?</h3>
+      <p style="font-size:13px;color:var(--gray);line-height:1.7">Har site ka alag code hota hai. Site add karne ke baad <strong>"Site Updates"</strong> mein jao — har site ke saath ek unique code dikhega. Woh code client ko do!</p>
+    </div>
+    <button class="add-btn" style="width:100%;justify-content:center" onclick="showPage('sites')">🏗️ Sites Dekho → Code Copy Karo</button>
+  </div>`;
+}
+
+function renderAddSiteCode(){
+  return `
+  <div style="max-width:500px;margin:0 auto">
+    <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:28px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:20px;margin-bottom:8px">➕ Site Code Add Karo</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.6">Contractor se Site Code maango aur yahan paste karo — sirf wahi site tumhare dashboard mein dikhegi!</p>
+      <div class="fg"><label>Site Code <span class="req">*</span></label><input id="site-code-input" type="text" placeholder="Jaise: AB12CD" maxlength="8" style="letter-spacing:4px;font-size:20px;text-align:center;text-transform:uppercase"></div>
+      <button class="auth-btn" onclick="addSiteByCode()">✅ Site Add Karo</button>
+    </div>
+    <div style="background:var(--cream);border-radius:12px;padding:16px;margin-top:14px">
+      <p style="font-size:13px;color:var(--gray);line-height:1.7">💡 <strong>Tip:</strong> Contractor ko bolna — <em>"SiteSaathi mein Site Updates mein jao, site ke saath code dikhega — woh bhejo mujhe!"</em></p>
+    </div>
+  </div>`;
+}
+
+window.addSiteByCode = async () => {
+  if(currentUser.isDemo){showToast('Demo mein nahi hota! Real account banao.','error');return;}
+  const code = document.getElementById('site-code-input')?.value.trim().toUpperCase();
+  if(!code||code.length<4){showToast('Valid site code daalo!','error');return;}
+
+  // Search all contractors for this site code
+  showToast('Code dhundh raha hai...','');
+  try {
+    // Find contractor who has a site with this code
+    const usersSnap = await getDocs(query(collection(db,'users'),where('role','==','contractor')));
+    let found = false;
+    for(const uDoc of usersSnap.docs){
+      const sitesSnap = await getDocs(query(collection(db,'users',uDoc.id,'sites'),where('siteCode','==',code)));
+      if(!sitesSnap.empty){
+        const siteDoc = sitesSnap.docs[0];
+        // Add to client's siteIds
+        const clientDoc = await getDoc(doc(db,'users',currentUser.uid));
+        const siteIds = clientDoc.data()?.siteIds||[];
+        // Check if already added
+        const alreadyAdded = siteIds.find(s=>s.siteId===siteDoc.id);
+        if(alreadyAdded){showToast('Yeh site already add hai!','error');return;}
+        siteIds.push({contractorId:uDoc.id, siteId:siteDoc.id});
+        await updateDoc(doc(db,'users',currentUser.uid),{siteIds});
+        showToast('Site add ho gayi! 🎉','success');
+        showPage('dashboard');
+        found=true;
+        break;
+      }
+    }
+    if(!found) showToast('Yeh code kisi site ka nahi hai! Dobara check karo.','error');
+  } catch(e){
+    showToast('Error aaya: '+e.message,'error');
+  }
+};
+
+async function renderSites(){
+  const sites=await getItems('sites');
+  if(!sites.length)return`<div class="empty"><div class="ei">🏗️</div><p>Koi site nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Site Add Karo</button></div>`;
+  return`<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Sites (${sites.length})</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'st')"></div></div><div style="overflow-x:auto"><table id="st"><thead><tr><th>Naam</th><th>Location</th><th>Progress</th><th>Status</th><th>Client Code</th><th>Update</th><th>Action</th></tr></thead><tbody>${sites.map(s=>`<tr><td><strong>${s.name}</strong></td><td>${s.location}</td><td style="min-width:100px">${s.progress}%<div class="prog-bar"><div class="prog-fill" style="width:${s.progress}%"></div></div></td><td><span class="pill ${s.status==='On Track'?'bg-green':s.status==='Delayed'?'bg-orange':'bg-blue'}">${s.status}</span></td><td><div style="display:flex;align-items:center;gap:6px"><span style="font-family:monospace;font-weight:700;font-size:14px;color:var(--green-dark);letter-spacing:2px">${s.siteCode||'...'}</span><button onclick="navigator.clipboard.writeText('${s.siteCode||''}');showToast('Code copy ho gaya!','success')" style="background:var(--green-pale);color:var(--green);border:none;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer">📋</button></div></td><td style="max-width:160px;font-size:12px;color:var(--gray)">${s.update||''}</td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('sites','${s.id}')">✏️</button><button class="btn-del" onclick="delItem('sites','${s.id}')">🗑️</button></div></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+async function renderMaterial(){
+  const items=await getItems('materials');
+  if(!items.length)return`<div class="empty"><div class="ei">🧱</div><p>Koi material nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Add Karo</button></div>`;
+  return`<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Material (${items.length})</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'mt')"></div></div><div style="overflow-x:auto"><table id="mt"><thead><tr><th>Item</th><th>Site</th><th>Order</th><th>Mila</th><th>Baaki</th><th>Supplier</th><th>Action</th></tr></thead><tbody>${items.map(m=>{const b=m.ordered-m.received;return`<tr><td><strong>${m.item}</strong></td><td>${m.site}</td><td>${m.ordered} ${m.unit}</td><td>${m.received} ${m.unit}</td><td><span class="pill ${b>0?'bg-orange':'bg-green'}">${b} ${m.unit}</span></td><td style="font-size:12px">${m.supplier||''}</td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('materials','${m.id}')">✏️</button><button class="btn-del" onclick="delItem('materials','${m.id}')">🗑️</button></div></td></tr>`;}).join('')}</tbody></table></div></div>`;
+}
+
+async function renderPayments(){
+  const items=await getItems('payments');
+  const tot=items.reduce((s,p)=>s+p.total,0),rec=items.reduce((s,p)=>s+p.received,0);
+  return`<div class="sum-row"><div class="sum-card"><div class="sum-val">₹${(tot/100000).toFixed(1)}L</div><div class="sum-lbl">Total</div></div><div class="sum-card"><div class="sum-val" style="color:var(--green)">₹${(rec/100000).toFixed(1)}L</div><div class="sum-lbl">Mila</div></div><div class="sum-card"><div class="sum-val" style="color:var(--orange)">₹${((tot-rec)/100000).toFixed(1)}L</div><div class="sum-lbl">Baaki</div></div></div>
+  ${!items.length?`<div class="empty"><div class="ei">💰</div><p>Koi payment nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Add Karo</button></div>`:
+  `<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Payments</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'pt')"></div></div><div style="overflow-x:auto"><table id="pt"><thead><tr><th>Client</th><th>Site</th><th>Total</th><th>Mila</th><th>Baaki</th><th>Status</th><th>Actions</th></tr></thead><tbody>${items.map(p=>`<tr><td><strong>${p.client}</strong></td><td>${p.site}</td><td>₹${p.total.toLocaleString()}</td><td style="color:var(--green)">₹${p.received.toLocaleString()}</td><td style="color:var(--orange)">₹${(p.total-p.received).toLocaleString()}</td><td><span class="pill ${p.status==='Paid'?'bg-green':p.status==='Partial'?'bg-yellow':'bg-red'}">${p.status}</span></td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('payments','${p.id}')">✏️</button><button class="btn-del" onclick="delItem('payments','${p.id}')">🗑️</button>${p.status!=='Paid'?`<button onclick="sendReminder('${p.client}','${p.site}',${p.total-p.received})" style="background:#E8F5EE;color:#1A4D31;border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer">📱 Reminder</button>`:''}${`<button onclick="generateInvoice('${p.id}')" style="background:#FEF0E7;color:#E8762A;border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer">🧾 Invoice</button>`}</div></td></tr>`).join('')}</tbody></table></div></div>`}`;
+}
+
+async function renderWorkers(){
+  const items=await getItems('workers');
+  if(!items.length)return`<div class="empty"><div class="ei">👷</div><p>Koi worker nahi. Add karo!</p><button class="add-btn" onclick="openAdd()">+ Add Karo</button></div>`;
+  return`<div class="tbl-wrap"><div class="tbl-head"><div class="dash-title">Workers (${items.length})</div><div class="search-box"><span>🔍</span><input placeholder="Search..." oninput="filterT(this,'wt')"></div></div><div style="overflow-x:auto"><table id="wt"><thead><tr><th>Naam</th><th>Role</th><th>Site</th><th>Din</th><th>Rate</th><th>Total</th><th>Advance</th><th>Due</th><th>Status</th><th>Action</th></tr></thead><tbody>${items.map(w=>{const t=w.days*w.rate,due=t-w.advance;return`<tr><td><strong>${w.name}</strong></td><td>${w.role}</td><td>${w.site}</td><td>${w.days}</td><td>₹${w.rate}</td><td>₹${t.toLocaleString()}</td><td style="color:var(--orange)">₹${w.advance}</td><td style="font-weight:600">₹${due.toLocaleString()}</td><td><span class="pill ${w.status==='Paid'?'bg-green':'bg-red'}">${w.status}</span></td><td><div class="act-btns"><button class="btn-edit" onclick="openEdit('workers','${w.id}')">✏️</button><button class="btn-del" onclick="delItem('workers','${w.id}')">🗑️</button></div></td></tr>`;}).join('')}</tbody></table></div></div>`;
+}
+
+// ===== MODAL =====
+window.openAdd=()=>{editId=null;openModal(currentPage,null);};
+
+window.openEdit=async(type,id)=>{
+  editId=id;
+  const items=await getItems(type);
+  const item=items.find(i=>i.id===id);
+  const pageMap={sites:'sites',materials:'material',payments:'payments',workers:'workers'};
+  openModal(pageMap[type],item);
+};
+
+async function openModal(page,data){
+  const titles={sites:'Site',material:'Material',payments:'Payment',workers:'Worker'};
+  document.getElementById('m-title').textContent=(editId?'Edit: ':'Naya ')+(titles[page]||page);
+  const sites=await getItems('sites');
+  document.getElementById('m-body').innerHTML=getForm(page,data,sites);
+  document.getElementById('modal').classList.add('active');
+}
+
+function getForm(page,d,sites){
+  const v=(k,def='')=>d?(d[k]??def):def;
+  const sOpts=sites.map(s=>`<option ${v('site')===s.name?'selected':''}>${s.name}</option>`).join('');
+  if(page==='sites')return`
+    <div class="fg"><label>Site Ka Naam <span class="req">*</span></label><input id="f-name" value="${v('name')}" placeholder="Sharma Villa"></div>
+    <div class="fg"><label>Location <span class="req">*</span></label><input id="f-location" value="${v('location')}" placeholder="Vijay Nagar, Indore"></div>
+    <div class="fg"><label>Shuru Tarikh</label><input type="date" id="f-startDate" value="${v('startDate')}"></div>
+    <div class="fg"><label>Khatam Tarikh</label><input type="date" id="f-endDate" value="${v('endDate')}"></div>
+    <div class="fg"><label>Progress (0-100)</label><input type="number" id="f-progress" value="${v('progress',0)}" min="0" max="100"></div>
+    <div class="fg"><label>Status</label><select id="f-status"><option ${v('status')==='On Track'?'selected':''}>On Track</option><option ${v('status')==='Delayed'?'selected':''}>Delayed</option><option ${v('status')==='Completed'?'selected':''}>Completed</option></select></div>
+    <div class="fg"><label>Aaj Ka Update</label><input id="f-update" value="${v('update')}" placeholder="Aaj kya hua?"></div>
+    <div class="fg"><label>Site Photo (optional)</label><input type="file" id="f-photo" accept="image/*" style="padding:6px"></div>
+    <div class="fg"><label>Client Budget (₹)</label><input type="number" id="f-budget" value="${v('budget',0)}" placeholder="Total project amount"></div>
+    <div class="fg"><label>Client Ne Diya (₹)</label><input type="number" id="f-paid" value="${v('paid',0)}" placeholder="Abhi tak mila"></div>`;
+  if(page==='material')return`
+    <div class="fg"><label>Site <span class="req">*</span></label><select id="f-site">${sOpts||'<option>Pehle site add karo</option>'}</select></div>
+    <div class="fg"><label>Item Naam <span class="req">*</span></label><input id="f-item" value="${v('item')}" placeholder="Cement, Sariya..."></div>
+    <div class="fg"><label>Unit</label><select id="f-unit"><option ${v('unit')==='Bags'?'selected':''}>Bags</option><option ${v('unit')==='Kg'?'selected':''}>Kg</option><option ${v('unit')==='Pcs'?'selected':''}>Pcs</option><option ${v('unit')==='Tons'?'selected':''}>Tons</option></select></div>
+    <div class="fg"><label>Order Kiya</label><input type="number" id="f-ordered" value="${v('ordered',0)}" min="0"></div>
+    <div class="fg"><label>Mila</label><input type="number" id="f-received" value="${v('received',0)}" min="0"></div>
+    <div class="fg"><label>Supplier</label><input id="f-supplier" value="${v('supplier')}" placeholder="Supplier naam"></div>`;
+  if(page==='payments')return`
+    <div class="fg"><label>Client Naam <span class="req">*</span></label><input id="f-client" value="${v('client')}" placeholder="Sharma Ji"></div>
+    <div class="fg"><label>Site</label><select id="f-site">${sOpts}</select></div>
+    <div class="fg"><label>Total Amount (₹) <span class="req">*</span></label><input type="number" id="f-total" value="${v('total',0)}" min="0"></div>
+    <div class="fg"><label>Mila (₹)</label><input type="number" id="f-received" value="${v('received',0)}" min="0"></div>
+    <div class="fg"><label>Tarikh</label><input type="date" id="f-date" value="${v('date')}"></div>`;
+  if(page==='workers')return`
+    <div class="fg"><label>Naam <span class="req">*</span></label><input id="f-name" value="${v('name')}" placeholder="Raju Mistri"></div>
+    <div class="fg"><label>Role</label><select id="f-role"><option ${v('role')==='Mason'?'selected':''}>Mason</option><option ${v('role')==='Helper'?'selected':''}>Helper</option><option ${v('role')==='Electrician'?'selected':''}>Electrician</option><option ${v('role')==='Plumber'?'selected':''}>Plumber</option><option ${v('role')==='Carpenter'?'selected':''}>Carpenter</option></select></div>
+    <div class="fg"><label>Site</label><select id="f-site">${sOpts}</select></div>
+    <div class="fg"><label>Din</label><input type="number" id="f-days" value="${v('days',0)}" min="0"></div>
+    <div class="fg"><label>Daily Rate (₹)</label><input type="number" id="f-rate" value="${v('rate',0)}" min="0"></div>
+    <div class="fg"><label>Advance (₹)</label><input type="number" id="f-advance" value="${v('advance',0)}" min="0"></div>
+    <div class="fg"><label>Status</label><select id="f-status"><option ${v('status')==='Pending'?'selected':''}>Pending</option><option ${v('status')==='Paid'?'selected':''}>Paid</option></select></div>`;
+  return'';
+}
+
+const g=id=>document.getElementById(id)?.value||'';
+
+window.saveItem=async()=>{
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota! Real account banao.','error');return;}
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Save...';
+  let item={},type='';
+  if(currentPage==='sites'){
+    if(!g('f-name')){showToast('Naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    const siteCode = editId ? undefined : Math.random().toString(36).substr(2,6).toUpperCase();
+    // Handle photo
+    let photoUrl = d ? (d.photoUrl||'') : '';
+    const photoFile = document.getElementById('f-photo')?.files[0];
+    if(photoFile) {
+      const reader = new FileReader();
+      photoUrl = await new Promise(res => { reader.onload = e => res(e.target.result); reader.readAsDataURL(photoFile); });
+    }
+    item={name:g('f-name'),location:g('f-location'),startDate:g('f-startDate'),endDate:g('f-endDate'),progress:parseInt(g('f-progress'))||0,status:g('f-status')||'On Track',update:g('f-update'),budget:parseInt(g('f-budget'))||0,paid:parseInt(g('f-paid'))||0,photoUrl,updatedAt:new Date().toISOString()};
+    if(siteCode) item.siteCode=siteCode;
+    type='sites';
+  } else if(currentPage==='material'){
+    if(!g('f-item')){showToast('Item naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    item={site:g('f-site'),item:g('f-item'),unit:g('f-unit')||'Pcs',ordered:parseInt(g('f-ordered'))||0,received:parseInt(g('f-received'))||0,supplier:g('f-supplier')};type='materials';
+  } else if(currentPage==='payments'){
+    if(!g('f-client')){showToast('Client naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    const tot=parseInt(g('f-total'))||0,rec=parseInt(g('f-received'))||0;
+    item={client:g('f-client'),site:g('f-site'),total:tot,received:rec,date:g('f-date'),status:rec>=tot?'Paid':rec>0?'Partial':'Pending'};type='payments';
+  } else if(currentPage==='workers'){
+    if(!g('f-name')){showToast('Naam daalo!','error');btn.disabled=false;btn.textContent='✅ Save Karo';return;}
+    item={name:g('f-name'),role:g('f-role')||'Helper',site:g('f-site'),days:parseInt(g('f-days'))||0,rate:parseInt(g('f-rate'))||0,advance:parseInt(g('f-advance'))||0,status:g('f-status')||'Pending'};type='workers';
+  }
+  let ok;
+  if(editId) ok=await updateItem(type,editId,item);
+  else ok=await addItem(type,item);
+  if(ok){showToast('✅ Saved!','success');closeModal();showPage(currentPage);}
+  btn.disabled=false;btn.textContent='✅ Save Karo';
+};
+
+window.delItem=async(type,id)=>{
+  if(currentUser.isDemo){showToast('Demo mein delete nahi hota!','error');return;}
+  if(!confirm('Delete karna chahte ho?'))return;
+  const ok=await deleteItem2(type,id);
+  if(ok){showToast('Deleted!');showPage(currentPage);}
+};
+
+window.closeModal=()=>{document.getElementById('modal').classList.remove('active');editId=null;};
+window.filterT=(inp,id)=>{const v=inp.value.toLowerCase();document.querySelectorAll(`#${id} tbody tr`).forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?'':'none');};
+window.showToast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);};
+
+// ===== PHASE 2: PAYMENT REMINDER =====
+window.sendReminder = (client, site, baaki) => {
+  const msg = `Namaste ${client} Ji! 🙏\n\nAapke ${site} ke liye ₹${baaki.toLocaleString()} ki payment abhi baaki hai.\n\nKripya jald se jald payment kar dein taaki kaam smoothly chalta rahe.\n\nShukriya!\n— ${currentUser.name}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+// ===== PHASE 2: GST INVOICE =====
+window.generateInvoice = async (paymentId) => {
+  const settings = await getContractorSettings();
+  const payments = await getItems('payments');
+  const p = payments.find(x => x.id === paymentId);
+  if(!p) return;
+
+  // Load jsPDF
+  if(!window.jspdf) {
+    showToast('Invoice load ho raha hai...', '');
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const green = [45, 122, 79];
+  const dark = [15, 31, 21];
+  const gray = [107, 124, 112];
+  const baaki = p.total - p.received;
+  const gstAmt = settings.hasGst ? Math.round(baaki * (settings.gstRate/100)) : 0;
+  const finalAmt = baaki + gstAmt;
+  const invNum = `SS-${new Date().getFullYear()}-${String(Math.floor(Math.random()*900)+100)}`;
+
+  // Header background
+  doc.setFillColor(...green);
+  doc.rect(0, 0, 210, 40, 'F');
+
+  // Company name
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(settings.companyName || currentUser.name, 14, 18);
+
+  // GST / Invoice label
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  if(settings.hasGst) doc.text(`GSTIN: ${settings.gstin}`, 14, 27);
+  doc.text(settings.address || currentUser.city, 14, 34);
+
+  // Invoice badge
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(150, 8, 46, 12, 3, 3, 'F');
+  doc.setTextColor(...green);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(settings.hasGst ? 'TAX INVOICE' : 'PAYMENT RECEIPT', 153, 16.5);
+
+  // Invoice details
+  doc.setTextColor(...dark);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Invoice: ${invNum}`, 150, 28);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 150, 34);
+
+  // Bill to
+  doc.setFillColor(232, 245, 238);
+  doc.rect(0, 45, 210, 20, 'F');
+  doc.setTextColor(...gray);
+  doc.setFontSize(8);
+  doc.text('BILL TO', 14, 52);
+  doc.setTextColor(...dark);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(p.client, 14, 59);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`Site: ${p.site}`, 100, 55);
+
+  // Table header
+  doc.setFillColor(...dark);
+  doc.rect(14, 72, 182, 8, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Description', 18, 77.5);
+  doc.text('Amount', 170, 77.5);
+
+  // Table rows
+  let y = 90;
+  const rows = [
+    ['Construction Work — ' + p.site, `₹${p.total.toLocaleString()}`],
+    ['Previously Received', `- ₹${p.received.toLocaleString()}`],
+    ['Balance Amount', `₹${baaki.toLocaleString()}`],
+  ];
+  if(settings.hasGst) rows.push([`GST @ ${settings.gstRate}%`, `₹${gstAmt.toLocaleString()}`]);
+
+  doc.setTextColor(...dark);
+  doc.setFont('helvetica', 'normal');
+  rows.forEach((row, i) => {
+    if(i % 2 === 0) { doc.setFillColor(248, 252, 249); doc.rect(14, y-5, 182, 9, 'F'); }
+    doc.setFontSize(10);
+    doc.text(row[0], 18, y);
+    doc.text(row[1], 185, y, {align:'right'});
+    doc.setDrawColor(212, 232, 220);
+    doc.line(14, y+4, 196, y+4);
+    y += 12;
+  });
+
+  // Total box
+  doc.setFillColor(...green);
+  doc.rect(120, y+2, 76, 14, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL DUE', 124, y+11);
+  doc.text(`₹${finalAmt.toLocaleString()}`, 192, y+11, {align:'right'});
+
+  // Footer
+  doc.setTextColor(...gray);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Generated by SiteSaathi — Construction Ka Digital Saathi', 105, 280, {align:'center'});
+  doc.text(`Contact: ${currentUser.email || ''}`, 105, 285, {align:'center'});
+
+  doc.save(`Invoice-${p.client}-${invNum}.pdf`);
+  showToast('Invoice download ho gayi! 🎉', 'success');
+};
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function getContractorSettings() {
+  if(currentUser.isDemo) return {companyName:'Demo Construction', hasGst:false, gstin:'', gstRate:18, address:'Indore, MP', phone:'9999999999'};
+  try {
+    const d = await getDoc(doc(db,'users',currentUser.uid));
+    return d.data()?.settings || {companyName:currentUser.name, hasGst:false, gstin:'', gstRate:18, address:currentUser.city||''};
+  } catch(e) { return {companyName:currentUser.name, hasGst:false, gstin:'', gstRate:18, address:''}; }
+}
+
+// ===== PHASE 2: PROFIT/LOSS =====
+async function renderProfit() {
+  const [sites, payments, materials, workers] = await Promise.all([getItems('sites'), getItems('payments'), getItems('materials'), getItems('workers')]);
+  if(!payments.length) return `<div class="empty"><div class="ei">📈</div><p>Koi payment data nahi. Pehle payments add karo!</p></div>`;
+
+  const totalRevenue = payments.reduce((s,p) => s + p.received, 0);
+  const totalWorkerCost = workers.reduce((s,w) => s + (w.days * w.rate), 0);
+  const totalProfit = totalRevenue - totalWorkerCost;
+  const profitPct = totalRevenue > 0 ? Math.round((totalProfit/totalRevenue)*100) : 0;
+
+  const siteProfit = sites.map(s => {
+    const sitePay = payments.filter(p => p.site === s.name).reduce((sum, p) => sum + p.received, 0);
+    const siteWorker = workers.filter(w => w.site === s.name).reduce((sum, w) => sum + (w.days * w.rate), 0);
+    return { name: s.name, revenue: sitePay, cost: siteWorker, profit: sitePay - siteWorker };
+  }).filter(s => s.revenue > 0);
+
+  return `
+  <div class="stats-grid" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">💰</span><span class="stat-badge bg-green">Revenue</span></div><div class="stat-val">₹${(totalRevenue/100000).toFixed(1)}L</div><div class="stat-lbl">Total Revenue</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">👷</span><span class="stat-badge bg-orange">Cost</span></div><div class="stat-val">₹${(totalWorkerCost/100000).toFixed(1)}L</div><div class="stat-lbl">Worker Cost</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">📈</span><span class="stat-badge ${totalProfit>=0?'bg-green':'bg-red'}">${totalProfit>=0?'Profit':'Loss'}</span></div><div class="stat-val" style="color:${totalProfit>=0?'var(--green)':'var(--red)'}">₹${(Math.abs(totalProfit)/100000).toFixed(1)}L</div><div class="stat-lbl">Net Profit</div></div>
+    <div class="stat-card"><div class="stat-top"><span class="stat-icon">🎯</span><span class="stat-badge bg-blue">Margin</span></div><div class="stat-val" style="color:${profitPct>=0?'var(--green)':'var(--red)'}">${profitPct}%</div><div class="stat-lbl">Profit Margin</div></div>
+  </div>
+  ${siteProfit.length ? `
+  <div class="tbl-wrap">
+    <div class="tbl-head"><div class="dash-title">Site-wise Profit</div></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Site</th><th>Revenue</th><th>Worker Cost</th><th>Net Profit</th><th>Status</th></tr></thead>
+    <tbody>${siteProfit.map(s=>`<tr>
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--green)">₹${s.revenue.toLocaleString()}</td>
+      <td style="color:var(--orange)">₹${s.cost.toLocaleString()}</td>
+      <td style="font-weight:600;color:${s.profit>=0?'var(--green)':'var(--red)'}">₹${s.profit.toLocaleString()}</td>
+      <td><span class="pill ${s.profit>=0?'bg-green':'bg-red'}">${s.profit>=0?'Profit':'Loss'}</span></td>
+    </tr>`).join('')}</tbody></table></div>
+  </div>` : `<div class="empty"><div class="ei">📊</div><p>Site-wise data ke liye workers aur payments add karo!</p></div>`}`;
+}
+
+// ===== PHASE 2: SETTINGS =====
+async function renderSettings() {
+  const s = await getContractorSettings();
+  return `
+  <div style="max-width:520px">
+    <div style="background:var(--color-background-primary,#fff);border:0.5px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;margin-bottom:18px;color:var(--dark)">🏢 Company Details</h3>
+      <div class="fg"><label>Company / Contractor Naam</label><input id="set-company" value="${s.companyName||currentUser.name}" placeholder="Aditya Construction"></div>
+      <div class="fg"><label>Address</label><input id="set-address" value="${s.address||''}" placeholder="Indore, Madhya Pradesh"></div>
+      <div class="fg"><label>Phone</label><input id="set-phone" value="${s.phone||''}" placeholder="+91 XXXXX XXXXX"></div>
+    </div>
+    <div style="background:var(--color-background-primary,#fff);border:0.5px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;margin-bottom:6px;color:var(--dark)">🧾 GST Settings</h3>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:14px">GSTIN nahi hai toh "Payment Receipt" banega — bilkul valid hai!</p>
+      <div class="fg"><label>Kya aapke paas GSTIN hai?</label>
+        <div style="display:flex;gap:10px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="hasgst" value="yes" ${s.hasGst?'checked':''} onchange="document.getElementById('gst-fields').style.display='block'"> Haan hai</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="hasgst" value="no" ${!s.hasGst?'checked':''} onchange="document.getElementById('gst-fields').style.display='none'"> Nahi hai</label>
+        </div>
+      </div>
+      <div id="gst-fields" style="display:${s.hasGst?'block':'none'}">
+        <div class="fg"><label>GSTIN Number</label><input id="set-gstin" value="${s.gstin||''}" placeholder="23ABCDE1234F1Z5" style="letter-spacing:2px"></div>
+        <div class="fg"><label>GST Rate</label>
+          <select id="set-gstrate">
+            <option value="12" ${s.gstRate===12?'selected':''}>12%</option>
+            <option value="18" ${s.gstRate===18?'selected':''}>18%</option>
+            <option value="28" ${s.gstRate===28?'selected':''}>28%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button class="auth-btn" onclick="saveSettings()" style="max-width:200px">✅ Settings Save Karo</button>
+  </div>`;
+}
+
+window.saveSettings = async () => {
+  if(currentUser.isDemo){showToast('Demo mein save nahi hota!','error');return;}
+  const hasGst = document.querySelector('input[name="hasgst"]:checked')?.value === 'yes';
+  const settings = {
+    companyName: document.getElementById('set-company')?.value || currentUser.name,
+    address: document.getElementById('set-address')?.value || '',
+    phone: document.getElementById('set-phone')?.value || '',
+    hasGst,
+    gstin: hasGst ? (document.getElementById('set-gstin')?.value||'') : '',
+    gstRate: hasGst ? parseInt(document.getElementById('set-gstrate')?.value||18) : 18,
+  };
+  await updateDoc(doc(db,'users',currentUser.uid), {settings});
+  showToast('Settings save ho gayi! ✅', 'success');
+};
+
+// ===== DEMO FAKE AI REPORT =====
+const DEMO_CLIENT_REPORT = `📋 Weekly Progress Report — Sharma Villa
+Date: 09 June 2026
+
+Namaste Sharma Ji! 🙏
+
+Aapki Sharma Villa ka is hafte ka progress report yahan hai.
+
+✅ OVERALL STATUS: ON TRACK
+Kaam acchi tarah chal raha hai. Abhi tak 45% kaam complete ho chuka hai.
+
+📍 IS HAFTE KYA HUA:
+Foundation ka kaam poora ho gaya hai aur brick work shuru ho gaya hai. Sab kuch plan ke hisaab se chal raha hai.
+
+📅 AAGE KYA HOGA:
+Agle hafte plastering ka kaam shuru hoga. Hum August 2026 tak completion ke liye track pe hain.
+
+💰 PAYMENT STATUS:
+Aapne abhi tak ₹5,00,000 diye hain. ₹3,00,000 baaki hain jo agle milestone pe due honge.
+
+Koi bhi sawaal ho toh call karein — hum hamesha available hain! 😊
+
+— Aditya Construction, Indore
+📱 +91 6263631635`;
+
+const DEMO_CONTRACTOR_REPORT = `📊 Weekly Internal Report — Aditya Construction
+Date: 09 June 2026
+
+🏗️ SITES SUMMARY:
+• Sharma Villa — 45% complete, On Track ✅
+• MG Road Shop — 70% complete, DELAYED ⚠️ (10 din late)
+• Verma Office — 20% complete, On Track ✅
+
+💰 FINANCIAL HEALTH:
+• Total Revenue Received: ₹11,50,000
+• Total Pending from Clients: ₹8,50,000
+• Worker Cost: ₹26,800
+• Estimated Net Profit: ₹11,23,200
+
+⚠️ URGENT ACTION ITEMS:
+1. MG Road Shop — Plumbing delay resolve karo — client naraaz ho sakta hai
+2. Sharma Ji se ₹3L payment follow-up karo — 25 din ho gaye hain
+3. Verma Ji se ₹8L pending — reminder bhejo
+
+🧱 MATERIAL SHORTAGES:
+• Cement — Sharma Villa mein sirf 15 bags baaki (20 aur order karo)
+• Bricks — Verma Office mein 3000 aur chahiye
+• Sand — Sharma Villa mein 12 Tons baaki order karna hai
+
+👷 WORKER PAYMENTS DUE:
+• Raju Mistri — ₹11,200 due
+• Mohan Electrician — ₹7,000 due
+• Ramesh Plumber — ₹5,600 due
+Total due: ₹23,800
+
+📅 NEXT WEEK PLAN:
+• MG Road Shop — Plumbing contractor change karo
+• Sharma Villa — Plastering shuru karo
+• Verma Office — Foundation complete karo
+
+💡 TIP: Sharma Ji ko aaj call karo — payment follow-up karna zaroori hai!`;
+
+// ===== RISK SCORE =====
+async function renderRiskScore() {
+  const sites = await getItems('sites');
+  const payments = await getItems('payments');
+  const materials = await getItems('materials');
+
+  if(!sites.length) return `<div class="empty"><div class="ei">⚠️</div><p>Koi site nahi. Pehle site add karo!</p></div>`;
+
+  function calcRisk(site) {
+    let score = 0;
+    let reasons = [];
+    // Progress stuck
+    if(site.progress < 30) { score += 2; reasons.push('Progress bahut kam hai'); }
+    if(site.status === 'Delayed') { score += 3; reasons.push('Site delayed hai'); }
+    // Payment pending
+    const sitePay = payments.find(p => p.site === site.name);
+    if(sitePay && sitePay.status === 'Pending') { score += 3; reasons.push('Payment pending hai'); }
+    if(sitePay && sitePay.status === 'Partial') { score += 1; reasons.push('Payment partial hai'); }
+    // Material shortage
+    const lowMat = materials.filter(m => m.site === site.name && (m.ordered - m.received) > 0);
+    if(lowMat.length > 0) { score += 2; reasons.push(`${lowMat.length} material shortage`); }
+    // Deadline
+    if(site.endDate) {
+      const daysLeft = Math.ceil((new Date(site.endDate) - new Date()) / (1000*60*60*24));
+      if(daysLeft < 30 && site.progress < 70) { score += 2; reasons.push('Deadline kareeб hai, progress kam'); }
+    }
+    return { score: Math.min(score, 10), reasons };
+  }
+
+  const siteRisks = sites.map(s => ({ ...s, ...calcRisk(s) }))
+    .sort((a,b) => b.score - a.score);
+
+  return `
+  <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Har site ka risk score — red = urgent attention chahiye! 🚨</p>
+  ${siteRisks.map(s => {
+    const color = s.score >= 7 ? 'var(--red)' : s.score >= 4 ? 'var(--orange)' : 'var(--green)';
+    const bg = s.score >= 7 ? 'var(--red-pale)' : s.score >= 4 ? '#FEF0E7' : 'var(--green-pale)';
+    const label = s.score >= 7 ? '🔴 High Risk' : s.score >= 4 ? '🟡 Medium Risk' : '🟢 Low Risk';
+    const pct = (s.score / 10) * 100;
+    return `
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--dark)">${s.name}</div>
+          <div style="font-size:12px;color:var(--gray)">📍 ${s.location} • ${s.progress}% complete</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:${color}">${s.score}/10</div>
+          <span style="background:${bg};color:${color};font-size:11px;padding:2px 10px;border-radius:20px;font-weight:500">${label}</span>
+        </div>
+      </div>
+      <div style="background:var(--border);border-radius:10px;height:8px;overflow:hidden;margin-bottom:12px">
+        <div style="height:100%;border-radius:10px;background:${color};width:${pct}%;transition:width 0.5s"></div>
+      </div>
+      ${s.reasons.length ? `
+      <div style="background:${bg};border-radius:8px;padding:10px 14px">
+        <div style="font-size:11px;font-weight:600;color:${color};margin-bottom:6px">⚠️ Risk Factors:</div>
+        ${s.reasons.map(r=>`<div style="font-size:12px;color:var(--gray);padding:2px 0">• ${r}</div>`).join('')}
+      </div>` : `<div style="font-size:12px;color:var(--green);background:var(--green-pale);padding:8px 12px;border-radius:8px">✅ Sab theek hai — koi risk nahi!</div>`}
+    </div>`;
+  }).join('')}
+  <div style="background:var(--green-pale);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--gray)">
+    💡 <strong style="color:var(--green-dark)">Risk Score kaise calculate hota hai:</strong> Progress, payment status, material shortage, aur deadline proximity — sab mila ke score banta hai.
+  </div>`;
+}
+
+// ===== DELAY PREDICTOR =====
+async function renderDelayPredictor() {
+  const sites = await getItems('sites');
+  if(!sites.length) return `<div class="empty"><div class="ei">🔮</div><p>Koi site nahi. Pehle site add karo!</p></div>`;
+
+  // Fetch weather for Indore
+  let weatherInfo = null;
+  try {
+    const wRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=22.7196&longitude=75.8577&daily=precipitation_sum&forecast_days=7&timezone=Asia%2FKolkata');
+    const wData = await wRes.json();
+    const rainDays = wData.daily?.precipitation_sum?.filter(r => r > 2).length || 0;
+    weatherInfo = { rainDays, forecast: wData.daily?.precipitation_sum || [] };
+  } catch(e) { weatherInfo = { rainDays: 2, forecast: [0,0,5,8,2,0,0] }; }
+
+  function predictDelay(site) {
+    let delayDays = 0;
+    let reasons = [];
+    let suggestions = [];
+
+    if(site.status === 'Delayed') {
+      delayDays += 15;
+      reasons.push('Site already delayed hai');
+      suggestions.push('Site supervisor se daily update lo');
+    }
+    if(site.progress < 30 && site.startDate) {
+      const daysSinceStart = Math.ceil((new Date() - new Date(site.startDate)) / (1000*60*60*24));
+      if(daysSinceStart > 60) {
+        delayDays += 20;
+        reasons.push('60+ din mein sirf 30% complete');
+        suggestions.push('Workforce badhaao ya contractor se baat karo');
+      }
+    }
+    if(weatherInfo.rainDays >= 3) {
+      delayDays += weatherInfo.rainDays * 2;
+      reasons.push(`Agle 7 din mein ${weatherInfo.rainDays} din barish expected`);
+      suggestions.push('Interior kaam aage karo, bahar ka kaam postpone karo');
+    }
+    if(site.endDate) {
+      const daysLeft = Math.ceil((new Date(site.endDate) - new Date()) / (1000*60*60*24));
+      const progressNeeded = 100 - site.progress;
+      const dailyRate = site.progress / Math.max(1, Math.ceil((new Date() - new Date(site.startDate||new Date())) / (1000*60*60*24)));
+      if(dailyRate > 0 && progressNeeded / dailyRate > daysLeft) {
+        delayDays += Math.round(progressNeeded / dailyRate - daysLeft);
+        reasons.push('Current pace pe deadline miss hogi');
+        suggestions.push('Kaam ki speed badhaani hogi');
+      }
+    }
+
+    return { delayDays, reasons, suggestions };
+  }
+
+  return `
+  <p style="font-size:13px;color:var(--gray);margin-bottom:8px">Weather forecast + progress pattern se delay predict karo!</p>
+  <div style="background:var(--blue-pale);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:24px">${weatherInfo.rainDays >= 3 ? '🌧️' : weatherInfo.rainDays >= 1 ? '🌦️' : '☀️'}</span>
+    <div>
+      <div style="font-size:13px;font-weight:500;color:var(--blue)">Indore Weather — Agle 7 Din</div>
+      <div style="font-size:12px;color:var(--gray)">${weatherInfo.rainDays >= 3 ? `⚠️ ${weatherInfo.rainDays} din barish expected — outdoor kaam affect hoga!` : weatherInfo.rainDays >= 1 ? `${weatherInfo.rainDays} din halki barish — thoda dhyan rakhna` : '✅ Accha maahol — kaam ke liye perfect!'}</div>
+    </div>
+  </div>
+
+  ${sites.map(s => {
+    const { delayDays, reasons, suggestions } = predictDelay(s);
+    const color = delayDays > 20 ? 'var(--red)' : delayDays > 5 ? 'var(--orange)' : 'var(--green)';
+    const bg = delayDays > 20 ? 'var(--red-pale)' : delayDays > 5 ? '#FEF0E7' : 'var(--green-pale)';
+    return `
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--dark)">${s.name}</div>
+          <div style="font-size:12px;color:var(--gray)">📍 ${s.location} • ${s.progress}% complete • Due: ${s.endDate||'N/A'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:${color}">${delayDays > 0 ? '+'+delayDays+' din' : '✅ On Time'}</div>
+          <div style="font-size:11px;color:${color};font-weight:500">${delayDays > 20 ? 'High Risk' : delayDays > 5 ? 'Medium Risk' : 'On Track'}</div>
+        </div>
+      </div>
+      ${reasons.length ? `
+      <div style="background:${bg};border-radius:8px;padding:10px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:${color};margin-bottom:4px">⚠️ Delay Reasons:</div>
+        ${reasons.map(r=>`<div style="font-size:12px;color:var(--gray);padding:2px 0">• ${r}</div>`).join('')}
+      </div>
+      <div style="background:var(--green-pale);border-radius:8px;padding:10px 14px">
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:4px">💡 Suggestions:</div>
+        ${suggestions.map(s=>`<div style="font-size:12px;color:var(--gray);padding:2px 0">• ${s}</div>`).join('')}
+      </div>` : `<div style="background:var(--green-pale);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green)">✅ Koi delay expected nahi — accha kaam chal raha hai!</div>`}
+      ${delayDays > 5 ? `
+      <button onclick="sendDelayAlert('${s.name}',${delayDays})" style="margin-top:12px;background:var(--orange);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans',sans-serif">📱 Client ko Proactively Batao</button>` : ''}
+    </div>`;
+  }).join('')}`;
+}
+
+window.sendDelayAlert = (siteName, days) => {
+  const msg = `Namaste! 🙏\n\n${siteName} ke baare mein ek update dena chahta tha — agle kuch din barish aur kaam ki wajah se approximately ${days} din ki delay ho sakti hai.\n\nHum poori koshish kar rahe hain ki jaldi se jaldi complete karein. Aapko regularly update karte rahenge!\n\nShukriya aapke sabr ke liye. 🙏\n— ${currentUser.name}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+// ===== BUDGET OVERRUN ALERT =====
+async function renderBudgetAlert() {
+  const sites = await getItems('sites');
+  const materials = await getItems('materials');
+  const workers = await getItems('workers');
+  const payments = await getItems('payments');
+
+  if(!sites.filter(s=>s.budget>0).length) return `
+  <div class="empty"><div class="ei">💸</div><p>Budget track karne ke liye sites mein budget add karo!</p><button class="add-btn" onclick="showPage('sites')">🏗️ Sites Edit Karo</button></div>`;
+
+  return `
+  <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Jab budget 80% use ho jaaye — pehle alert aayega! Kabhi surprise nahi! 💸</p>
+  ${sites.filter(s=>s.budget>0).map(s => {
+    const workerCost = workers.filter(w=>w.site===s.name).reduce((sum,w)=>sum+(w.days*w.rate),0);
+    const matCost = materials.filter(m=>m.site===s.name).reduce((sum,m)=>sum+(m.received*500),0); // Approximate
+    const totalSpent = workerCost; // Only tracking worker cost accurately
+    const budget = s.budget;
+    const pct = budget > 0 ? Math.round((totalSpent/budget)*100) : 0;
+    const received = payments.filter(p=>p.site===s.name).reduce((sum,p)=>sum+p.received,0);
+    const color = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--orange)' : 'var(--green)';
+    const bg = pct >= 90 ? 'var(--red-pale)' : pct >= 70 ? '#FEF0E7' : 'var(--green-pale)';
+    return `
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--dark)">${s.name}</div>
+          <div style="font-size:12px;color:var(--gray)">Total Budget: ₹${budget.toLocaleString()}</div>
+        </div>
+        <span style="background:${bg};color:${color};font-size:12px;padding:4px 12px;border-radius:20px;font-weight:500;height:fit-content">${pct >= 90 ? '🚨 Critical' : pct >= 70 ? '⚠️ Warning' : '✅ Healthy'}</span>
+      </div>
+      <div style="background:var(--border);border-radius:10px;height:10px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;border-radius:10px;background:${color};width:${Math.min(pct,100)}%;transition:width 0.5s"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+        <div style="text-align:center;background:var(--cream);padding:8px;border-radius:8px">
+          <div style="font-size:10px;color:var(--gray)">Budget</div>
+          <div style="font-weight:600;font-size:13px">₹${budget.toLocaleString()}</div>
+        </div>
+        <div style="text-align:center;background:var(--red-pale);padding:8px;border-radius:8px">
+          <div style="font-size:10px;color:var(--gray)">Worker Cost</div>
+          <div style="font-weight:600;font-size:13px;color:var(--red)">₹${workerCost.toLocaleString()}</div>
+        </div>
+        <div style="text-align:center;background:var(--green-pale);padding:8px;border-radius:8px">
+          <div style="font-size:10px;color:var(--gray)">Received</div>
+          <div style="font-weight:600;font-size:13px;color:var(--green)">₹${received.toLocaleString()}</div>
+        </div>
+      </div>
+      ${pct >= 70 ? `<div style="margin-top:10px;background:${bg};border-radius:8px;padding:10px 14px;font-size:12px;color:${color}">
+        ${pct >= 90 ? '🚨 Budget 90%+ use ho gaya! Turant client se baat karo — ya kharcha kam karo.' : '⚠️ Budget 70% use ho gaya — dhyan rakhna zaroori hai. Unexpected kharcha avoid karo.'}
+      </div>` : ''}
+    </div>`;
+  }).join('')}
+  <div style="background:var(--green-pale);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--gray);line-height:1.6">
+    💡 <strong style="color:var(--green-dark)">Tip:</strong> Worker cost accurately track hota hai. Material cost ke liye payments section mein entries add karte raho!
+  </div>`;
+}
+
+// ===== MATERIAL PRICES =====
+async function renderMaterialPrices() {
+  // Demo prices for major cities — real app mein API se aayenge
+  const prices = [
+    { item:'Cement (OPC 53 Grade)', unit:'Bag (50kg)', indore:380, bhopal:375, nagpur:370, trend:'up', change:'+₹15' },
+    { item:'Sariya (TMT 8mm)', unit:'Kg', indore:58, bhopal:56, nagpur:55, trend:'down', change:'-₹3' },
+    { item:'River Sand', unit:'Cubic Ft', indore:45, bhopal:42, nagpur:40, trend:'stable', change:'No change' },
+    { item:'Bricks (Red)', unit:'1000 pcs', indore:7500, bhopal:7200, nagpur:7000, trend:'up', change:'+₹200' },
+    { item:'M-Sand', unit:'Cubic Ft', indore:35, bhopal:33, nagpur:32, trend:'stable', change:'No change' },
+    { item:'AAC Blocks', unit:'Cubic Ft', indore:58, bhopal:55, nagpur:53, trend:'up', change:'+₹5' },
+    { item:'PCC Pipe (4 inch)', unit:'Per piece', indore:280, bhopal:275, nagpur:270, trend:'stable', change:'No change' },
+    { item:'Paint (Exterior)', unit:'Litre', indore:165, bhopal:162, nagpur:160, trend:'down', change:'-₹5' },
+  ];
+
+  return `
+  <div style="background:var(--blue-pale);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:24px">📊</span>
+    <div>
+      <div style="font-size:13px;font-weight:500;color:var(--blue)">Madhya Pradesh — Material Prices Today</div>
+      <div style="font-size:11px;color:var(--gray)">Last updated: ${new Date().toLocaleDateString('en-IN')} • Approximate market rates</div>
+    </div>
+  </div>
+
+  <div style="background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px">
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border);background:var(--cream)">
+      <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;gap:8px;font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase">
+        <span>Material</span><span>Indore</span><span>Bhopal</span><span>Nagpur</span><span>Trend</span>
+      </div>
+    </div>
+    ${prices.map(p=>`
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 80px 80px 80px 80px;gap:8px;align-items:center">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--dark)">${p.item}</div>
+        <div style="font-size:11px;color:var(--gray)">per ${p.unit}</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--green)">₹${p.indore}</div>
+      <div style="font-size:13px;color:var(--dark)">₹${p.bhopal}</div>
+      <div style="font-size:13px;color:var(--dark)">₹${p.nagpur}</div>
+      <div style="font-size:11px;font-weight:500;color:${p.trend==='up'?'var(--red)':p.trend==='down'?'var(--green)':'var(--gray)'}">
+        ${p.trend==='up'?'📈':p.trend==='down'?'📉':'➡️'} ${p.change}
+      </div>
+    </div>`).join('')}
+  </div>
+
+  <div style="background:var(--green-pale);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--gray);line-height:1.6">
+    💡 <strong style="color:var(--green-dark)">Smart buying tip:</strong> Cement aur Bricks ke rates upar ja rahe hain — agar project mein zaroorat hai toh aaj order karna better rahega! Sariya ke rates neeche aa rahe hain — thoda wait kar sakte ho.
+  </div>
+
+  <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:16px;margin-top:12px">
+    <div style="font-size:14px;font-weight:500;color:var(--dark);margin-bottom:12px">🧮 Quick Calculator</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fg"><label>Material</label>
+        <select id="calc-mat">
+          ${prices.map(p=>`<option value="${p.indore}">${p.item}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>Quantity</label><input type="number" id="calc-qty" placeholder="Kitna chahiye?" oninput="calcMaterialCost()"></div>
+    </div>
+    <div id="calc-result" style="display:none;background:var(--green-pale);border-radius:8px;padding:10px 14px;font-size:14px;font-weight:500;color:var(--green-dark)"></div>
+  </div>`;
+}
+
+window.calcMaterialCost = () => {
+  const rate = parseFloat(document.getElementById('calc-mat')?.value) || 0;
+  const qty = parseFloat(document.getElementById('calc-qty')?.value) || 0;
+  if(!rate || !qty) return;
+  const total = rate * qty;
+  const res = document.getElementById('calc-result');
+  res.style.display = 'block';
+  res.textContent = `Estimated Cost: ₹${total.toLocaleString()} (Indore market rate)`;
+};
+
+// ===== WHATSAPP BOT =====
+function renderWhatsAppBot() {
+  const contractorNum = '916263631635';
+  const commands = [
+    { cmd:'site update', example:'site update: Sharma Villa — aaj plastering complete', desc:'Site ka daily update app mein automatically save ho jaayega' },
+    { cmd:'payment', example:'payment: Sharma Ji ne 50000 diya aaj', desc:'Payment automatically track ho jaayegi' },
+    { cmd:'material', example:'material: Cement 20 bags aaya Sharma Villa', desc:'Material stock update ho jaayega' },
+    { cmd:'report', example:'report: Sharma Villa', desc:'Site ki weekly report WhatsApp pe milegi' },
+    { cmd:'status', example:'status', desc:'Sab sites ka quick status milega' },
+  ];
+
+  return `
+  <div style="max-width:580px">
+    <div style="background:linear-gradient(135deg,#25D366,#128C7E);border-radius:14px;padding:24px;color:#fff;margin-bottom:16px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px">💬 SiteSaathi WhatsApp Bot</div>
+      <p style="font-size:13px;opacity:0.9;margin:0">App kholo nahi — sirf WhatsApp pe type karo! Bot automatically sab update kar dega.</p>
+    </div>
+
+    <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:20px;margin-bottom:16px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:17px;margin-bottom:14px;color:var(--dark)">📱 Step 1 — Bot Save Karo</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:14px">Yeh number apne contacts mein "SiteSaathi Bot" save karo:</p>
+      <div style="background:var(--green-pale);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--green-dark);letter-spacing:3px">+91 6263631635</div>
+      </div>
+      <a href="https://wa.me/${contractorNum}?text=Hello SiteSaathi!" target="_blank" style="display:block;text-align:center;background:#25D366;color:#fff;padding:10px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600">💬 WhatsApp pe Open Karo</a>
+    </div>
+
+    <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:20px;margin-bottom:16px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:17px;margin-bottom:14px;color:var(--dark)">⌨️ Commands — Kya Type Karna Hai</h3>
+      ${commands.map(c=>`
+      <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="background:var(--green-pale);color:var(--green-dark);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;font-family:monospace">${c.cmd}</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:4px">${c.desc}</div>
+        <div style="background:var(--cream);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--dark);font-style:italic">Example: "${c.example}"</div>
+      </div>`).join('')}
+    </div>
+
+    <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:20px;margin-bottom:16px">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:17px;margin-bottom:10px;color:var(--dark)">🧪 Try Karo — Demo Message Bhejo</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Yeh messages copy karke SiteSaathi bot ko bhejo:</p>
+      ${commands.slice(0,3).map(c=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--cream);border-radius:8px;padding:10px 14px;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--dark);font-style:italic">"${c.example}"</span>
+        <button onclick="navigator.clipboard.writeText('${c.example}');showToast('Copy ho gaya!','success')" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0;margin-left:8px">📋</button>
+      </div>`).join('')}
+    </div>
+
+    <div style="background:var(--yellow-pale);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--gray);line-height:1.6;border-left:3px solid var(--yellow)">
+      ⚠️ <strong style="color:#633806">Note:</strong> WhatsApp Bot abhi setup phase mein hai. Jab 50+ contractors use karne lagte hain tab full automation activate hogi. Abhi manually messages forward honge — but UI aur workflow ready hai!
+    </div>
+  </div>`;
+}
+function renderEMIPlanner() {
+  return `
+  <div style="max-width:580px">
+    <div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:40px;height:40px;background:var(--green-pale);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🏦</div>
+        <div>
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;color:var(--dark);margin:0">Smart EMI / Payment Planner</h3>
+          <p style="font-size:12px;color:var(--gray);margin:0">Milestone-based payment structure suggest karo — disputes khatam!</p>
+        </div>
+      </div>
+      <div class="fg"><label>Total Project Amount (₹)</label><input type="number" id="emi-total" placeholder="Jaise: 1500000" oninput="calcEMI()"></div>
+      <div class="fg"><label>Project Duration (months)</label><input type="number" id="emi-months" placeholder="Jaise: 6" oninput="calcEMI()"></div>
+      <div class="fg"><label>Payment Structure</label>
+        <select id="emi-type" onchange="calcEMI()">
+          <option value="milestone">Milestone Based (Recommended)</option>
+          <option value="monthly">Monthly Equal</option>
+          <option value="front">Front Heavy (70-20-10)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="emi-result" style="display:none;background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden">
+      <div style="background:var(--green-dark);padding:14px 20px">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff">💡 Suggested Payment Plan</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7)" id="emi-subtitle"></div>
+      </div>
+      <div id="emi-schedule" style="padding:16px"></div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border);background:var(--cream)">
+        <button onclick="copyEMIPlan()" style="background:var(--green);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans',sans-serif">📋 Plan Copy Karo — Client ko Bhejo</button>
+      </div>
+    </div>
+
+    <div style="background:var(--green-pale);border-radius:12px;padding:14px 18px;margin-top:14px;font-size:13px;color:var(--gray);line-height:1.6">
+      💡 <strong style="color:var(--green-dark)">Kyun zaroori hai:</strong> India mein 60% construction disputes payment ke baare mein hote hain. Shuru mein clear structure dene se baad mein koi jhagda nahi hota!
+    </div>
+  </div>`;
+}
+
+window.calcEMI = () => {
+  const total = parseInt(document.getElementById('emi-total')?.value) || 0;
+  const months = parseInt(document.getElementById('emi-months')?.value) || 0;
+  const type = document.getElementById('emi-type')?.value || 'milestone';
+  if(!total || !months) return;
+
+  const result = document.getElementById('emi-result');
+  const schedule = document.getElementById('emi-schedule');
+  const subtitle = document.getElementById('emi-subtitle');
+  result.style.display = 'block';
+
+  let plan = [];
+  if(type === 'milestone') {
+    plan = [
+      { label:'Token/Advance', pct:10, when:'Agreement sign karte waqt', desc:'Trust establish karne ke liye' },
+      { label:'Foundation Complete', pct:20, when:'Foundation kaam hone ke baad', desc:'Sabse important milestone' },
+      { label:'Structure/Slab', pct:25, when:'Structure complete hone pe', desc:'Major construction milestone' },
+      { label:'Brick Work + Plaster', pct:20, when:'Walls aur plaster ke baad', desc:'Interior ready hone pe' },
+      { label:'Finishing Work', pct:15, when:'Flooring, painting, fittings', desc:'Almost complete hone pe' },
+      { label:'Final Handover', pct:10, when:'Keys dene ke waqt', desc:'Sab satisfied hone pe' },
+    ];
+    subtitle.textContent = 'Milestone-based — sabse fair aur transparent!';
+  } else if(type === 'monthly') {
+    const monthly = Math.round(total / months);
+    plan = Array.from({length:months}, (_, i) => ({
+      label:`Month ${i+1}`, pct:Math.round(100/months),
+      when:`${i+1}va mahina`, desc:`₹${monthly.toLocaleString()} har mahine`,
+      amount: monthly
+    }));
+    subtitle.textContent = 'Monthly equal payments';
+  } else {
+    plan = [
+      { label:'Advance', pct:70, when:'Shuru mein', desc:'Materials ke liye' },
+      { label:'Mid Project', pct:20, when:'50% complete hone pe', desc:'Ongoing kaam ke liye' },
+      { label:'Final', pct:10, when:'Completion pe', desc:'Handover ke waqt' },
+    ];
+    subtitle.textContent = 'Front heavy — materials ke liye upfront cash';
+  }
+
+  schedule.innerHTML = plan.map((p, i) => {
+    const amt = p.amount || Math.round(total * p.pct / 100);
+    return `
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500;color:var(--dark)">${p.label}</div>
+        <div style="font-size:11px;color:var(--gray)">${p.when} • ${p.desc}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--green)">₹${amt.toLocaleString()}</div>
+        <div style="font-size:11px;color:var(--gray)">${p.pct}%</div>
+      </div>
+    </div>`;
+  }).join('') + `<div style="padding:12px 0;display:flex;justify-content:space-between;font-weight:600"><span>Total</span><span style="color:var(--green-dark);font-family:'Rajdhani',sans-serif;font-size:18px">₹${total.toLocaleString()}</span></div>`;
+};
+
+window.copyEMIPlan = () => {
+  const total = parseInt(document.getElementById('emi-total')?.value) || 0;
+  const type = document.getElementById('emi-type')?.value;
+  const text = `Payment Plan — SiteSaathi\nTotal: ₹${total.toLocaleString()}\n\nYeh plan SiteSaathi app se generate hua hai. Dono parties ki agreement ke liye.`;
+  navigator.clipboard.writeText(text);
+  showToast('Plan copy ho gaya! Client ko bhejo 📋', 'success');
+};
+async function renderReports() {
+  const sites = await getItems('sites');
+  const siteOptions = sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  return `
+  <div style="max-width:700px">
+
+    <!-- Report Generator -->
+    <div style="background:#fff;border-radius:14px;border:0.5px solid var(--border);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div style="width:40px;height:40px;background:var(--green-pale);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
+        <div>
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;color:var(--dark);margin:0">AI Site Report Generator</h3>
+          <p style="font-size:12px;color:var(--gray);margin:0">Apna data daalo — AI professional report banayega</p>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <div class="fg">
+        <label>Kaunsi Site ka Report?</label>
+        <select id="rep-site">
+          <option value="all">Sab Sites — Overall Report</option>
+          ${siteOptions}
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Report Kiske Liye?</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <div class="role-card selected" id="rt-client" onclick="selectRepType('client')">
+            <div class="ri">🏠</div>
+            <div class="rl">Client Report</div>
+            <div class="rs">Simple — progress, date, payment</div>
+          </div>
+          <div class="role-card" id="rt-contractor" onclick="selectRepType('contractor')">
+            <div class="ri">🏗️</div>
+            <div class="rl">Contractor Report</div>
+            <div class="rs">Detailed — material, worker, profit</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Period</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <div class="role-card selected" id="rp-weekly" onclick="selectRepPeriod('weekly')">
+            <div class="ri">📅</div>
+            <div class="rl">Weekly</div>
+            <div class="rs">Is hafte ka summary</div>
+          </div>
+          <div class="role-card" id="rp-full" onclick="selectRepPeriod('full')">
+            <div class="ri">📋</div>
+            <div class="rl">Full Project</div>
+            <div class="rs">Shuru se aaj tak</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Report Language</label>
+        <select id="rep-lang">
+          <option value="hindi">Hindi (Hinglish)</option>
+          <option value="english">English</option>
+        </select>
+      </div>
+
+      <div class="fg" id="client-name-field">
+        <label>Client Ka Naam (optional)</label>
+        <input id="rep-client" placeholder="Jaise: Sharma Ji — report mein add hoga">
+      </div>
+
+      <button class="auth-btn" id="gen-btn" onclick="generateReport()" style="margin-top:4px">
+        🤖 AI Report Generate Karo
+      </button>
+    </div>
+
+    <!-- Report Output -->
+    <div id="report-output" style="display:none;background:#fff;border-radius:14px;border:0.5px solid var(--border);overflow:hidden">
+      <div style="background:var(--green-dark);padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff" id="rep-output-title">Site Report</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7)" id="rep-output-date"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="copyReport()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans',sans-serif">📋 Copy</button>
+          <button onclick="shareReportWhatsApp()" style="background:#25D366;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans',sans-serif">💬 WhatsApp</button>
+        </div>
+      </div>
+      <div id="rep-content" style="padding:24px;font-size:14px;line-height:1.8;color:var(--dark);white-space:pre-wrap;font-family:'Noto Sans',sans-serif"></div>
+    </div>
+
+    <!-- Past Reports tip -->
+    <div style="background:var(--green-pale);border-radius:12px;padding:14px 18px;margin-top:14px;font-size:13px;color:var(--gray);line-height:1.6">
+      💡 <strong style="color:var(--green-dark)">Pro tip:</strong> Har hafte ek report banao aur client ko WhatsApp karo — client khud call karna band kar dega! Trust automatic badhega.
+    </div>
+  </div>`;
+}
+
+let currentRepType = 'client';
+let currentRepPeriod = 'weekly';
+
+window.selectRepType = (type) => {
+  currentRepType = type;
+  document.getElementById('rt-client').classList.toggle('selected', type==='client');
+  document.getElementById('rt-contractor').classList.toggle('selected', type==='contractor');
+  // Show/hide client name field
+  document.getElementById('client-name-field').style.display = type==='client' ? 'block' : 'none';
+};
+
+window.selectRepPeriod = (period) => {
+  currentRepPeriod = period;
+  document.getElementById('rp-weekly').classList.toggle('selected', period==='weekly');
+  document.getElementById('rp-full').classList.toggle('selected', period==='full');
+};
+
+window.generateReport = async () => {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>AI report bana raha hai...';
+
+  // DEMO — show fake report
+  if(currentUser.isDemo) {
+    await new Promise(r => setTimeout(r, 2000)); // Realistic delay
+    const repType = currentRepType;
+    const reportText = repType === 'client' ? DEMO_CLIENT_REPORT : DEMO_CONTRACTOR_REPORT;
+    const siteId = document.getElementById('rep-site').value;
+    document.getElementById('rep-output-title').textContent = `${siteId==='all'?'Sab Sites':'Sharma Villa'} — ${repType==='client'?'Client Report':'Contractor Report'}`;
+    document.getElementById('rep-output-date').textContent = new Date().toLocaleDateString('en-IN', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('rep-content').textContent = reportText;
+    document.getElementById('report-output').style.display = 'block';
+    document.getElementById('report-output').scrollIntoView({behavior:'smooth'});
+    showToast('Demo Report ready hai! 🎉', 'success');
+    btn.disabled = false;
+    btn.textContent = '🤖 AI Report Generate Karo';
+    return;
+  }
+
+  const siteId = document.getElementById('rep-site').value;
+  const lang = document.getElementById('rep-lang').value;
+  const clientName = document.getElementById('rep-client').value || 'Client';
+
+  // Get all data
+  const [sites, payments, materials, workers] = await Promise.all([
+    getItems('sites'), getItems('payments'), getItems('materials'), getItems('workers')
+  ]);
+
+  const settings = await getContractorSettings();
+
+  // Filter by site
+  let filteredSites = siteId === 'all' ? sites : sites.filter(s=>s.id===siteId);
+  let filteredPayments = siteId === 'all' ? payments : payments.filter(p=>filteredSites.some(s=>s.name===p.site));
+  let filteredWorkers = siteId === 'all' ? workers : workers.filter(w=>filteredSites.some(s=>s.name===w.site));
+  let filteredMaterials = siteId === 'all' ? materials : materials.filter(m=>filteredSites.some(s=>s.name===m.site));
+
+  const langInstruction = lang === 'hindi'
+    ? 'Write in Hinglish (natural mix of Hindi and English). Respectful and warm tone.'
+    : 'Write in professional but friendly English.';
+
+  const date = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
+
+  let prompt = '';
+
+  if(currentRepType === 'client') {
+    // CLIENT REPORT — Simple, no material/worker details
+    const sitesSummary = filteredSites.map(s=>`
+Site: ${s.name}
+Location: ${s.location}
+Progress: ${s.progress}% complete
+Status: ${s.status}
+Latest Update: ${s.update || 'Work in progress'}
+Start Date: ${s.startDate || 'N/A'}
+Expected Completion: ${s.endDate || 'N/A'}
+Budget: ₹${(s.budget||0).toLocaleString()}
+Amount Paid: ₹${(s.paid||0).toLocaleString()}
+Amount Pending: ₹${((s.budget||0)-(s.paid||0)).toLocaleString()}`).join('\n');
+
+    prompt = `You are writing a ${currentRepPeriod === 'weekly' ? 'weekly progress' : 'complete project'} report from contractor "${settings.companyName || currentUser.name}" to their client "${clientName}".
+
+${langInstruction}
+
+Date: ${date}
+
+Project Data:
+${sitesSummary}
+
+Write a SHORT, SIMPLE, CLIENT-FRIENDLY report. The client only cares about:
+1. How much work is done (% progress)
+2. What happened this week / overall
+3. What will happen next
+4. Payment status (how much paid, how much remaining)
+5. Expected completion date
+
+DO NOT mention: workers, material quantities, stock, supplier names — client does not need these details.
+
+Make it warm, reassuring, and professional. Use emojis. Keep it concise — max 15-20 lines. No markdown # headers, use plain text with line breaks.`;
+
+  } else {
+    // CONTRACTOR REPORT — Full detailed internal report
+    const totalRevenue = filteredPayments.reduce((s,p)=>s+p.received,0);
+    const totalPending = filteredPayments.reduce((s,p)=>s+(p.total-p.received),0);
+    const totalWorkerCost = filteredWorkers.reduce((s,w)=>s+(w.days*w.rate),0);
+    const lowStock = filteredMaterials.filter(m=>(m.ordered-m.received)>0);
+    const pendingWorkers = filteredWorkers.filter(w=>w.status==='Pending');
+
+    prompt = `You are writing a ${currentRepPeriod === 'weekly' ? 'weekly internal' : 'full project'} business report for contractor "${settings.companyName || currentUser.name}".
+
+${langInstruction}
+
+Date: ${date}
+
+SITES STATUS:
+${filteredSites.map(s=>`- ${s.name}: ${s.progress}% complete, ${s.status}, Update: ${s.update||'N/A'}, Due: ${s.endDate||'N/A'}`).join('\n')}
+
+FINANCIALS:
+- Total Revenue Received: ₹${totalRevenue.toLocaleString()}
+- Total Pending from Clients: ₹${totalPending.toLocaleString()}
+- Total Worker Cost: ₹${totalWorkerCost.toLocaleString()}
+- Estimated Profit: ₹${(totalRevenue-totalWorkerCost).toLocaleString()}
+
+MATERIAL SHORTAGES:
+${lowStock.length ? lowStock.map(m=>`- ${m.item} at ${m.site}: ${m.ordered-m.received} ${m.unit} baaki`).join('\n') : '- No shortages'}
+
+WORKER PAYMENTS DUE:
+${pendingWorkers.length ? pendingWorkers.map(w=>`- ${w.name} (${w.role}) at ${w.site}: ₹${(w.days*w.rate-w.advance).toLocaleString()} due`).join('\n') : '- All workers paid'}
+
+PAYMENTS PENDING FROM CLIENTS:
+${filteredPayments.filter(p=>p.status!=='Paid').map(p=>`- ${p.client} (${p.site}): ₹${(p.total-p.received).toLocaleString()} pending`).join('\n') || '- All payments received'}
+
+Write a detailed internal business report with:
+1. Executive summary
+2. Site-wise progress
+3. Financial health (profit/loss)
+4. Action items — what needs attention urgently
+5. Material needs
+6. Worker payment dues
+7. Client follow-ups needed
+8. Next week plan
+
+Be direct and actionable. Use emojis for quick scanning. No markdown # headers, plain text with line breaks.`;
+  }
+
+  try {
+    const response = await fetch('https://sitesaathi-api.adityarana5244.workers.dev', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const reportText = data.content?.[0]?.text || 'Report generate nahi hua. Dobara try karo.';
+
+    // Show output
+    const siteName = siteId === 'all' ? 'Sab Sites' : filteredSites[0]?.name || 'Site';
+    const repLabel = currentRepType === 'client' ? 'Client Report' : 'Contractor Report';
+    const periodLabel = currentRepPeriod === 'weekly' ? 'Weekly' : 'Full Project';
+    document.getElementById('rep-output-title').textContent = `${siteName} — ${repLabel} (${periodLabel})`;
+    document.getElementById('rep-output-date').textContent = new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    document.getElementById('rep-content').textContent = reportText;
+    document.getElementById('report-output').style.display = 'block';
+    document.getElementById('report-output').scrollIntoView({behavior:'smooth'});
+    showToast('Report ready hai! 🎉', 'success');
+
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🤖 AI Report Generate Karo';
+};
+
+window.copyReport = () => {
+  const text = document.getElementById('rep-content').textContent;
+  navigator.clipboard.writeText(text);
+  showToast('Report copy ho gayi! 📋', 'success');
+};
+
+window.shareReportWhatsApp = () => {
+  const text = document.getElementById('rep-content').textContent;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+};
+async function renderTimeline() {
+  let sites = [];
+  if(currentUser.isDemo) {
+    sites = DEMO_DATA.client.sites;
+  } else if(currentUser.role==='client') {
+    const uDoc = await getDoc(doc(db,'users',currentUser.uid));
+    const siteIds = uDoc.data()?.siteIds || [];
+    for(const ref of siteIds) {
+      try {
+        const sDoc = await getDoc(doc(db,'users',ref.contractorId,'sites',ref.siteId));
+        if(sDoc.exists()) sites.push({id:sDoc.id,...sDoc.data()});
+      } catch(e){}
+    }
+  }
+
+  if(!sites.length) return `<div class="empty"><div class="ei">📸</div><p>Koi site nahi. Site code add karo pehle!</p><button class="add-btn" onclick="showPage('addsitecode')">➕ Site Code Add Karo</button></div>`;
+
+  return `
+  <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Apni site ki journey dekho — shuru se aaj tak! 📸</p>
+  ${sites.map(s => `
+  <div style="background:#fff;border-radius:14px;border:0.5px solid var(--border);overflow:hidden;margin-bottom:20px">
+    <div style="background:var(--green-dark);padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff">${s.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.7)">📍 ${s.location||''}</div></div>
+      <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px">${s.progress||0}% Complete</span>
+    </div>
+    ${s.photoUrl ? `
+    <div style="padding:16px">
+      <img src="${s.photoUrl}" style="width:100%;border-radius:10px;max-height:300px;object-fit:cover" alt="Site photo">
+      <div style="margin-top:10px;background:var(--cream);padding:10px 14px;border-radius:8px;font-size:13px;color:var(--gray)">
+        📋 Latest: ${s.update||'Koi update nahi'}
+        <div style="font-size:11px;margin-top:4px;color:var(--gray)">🕐 ${s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : 'N/A'}</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <div style="flex:1;text-align:center;background:var(--green-pale);padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Status</div><div style="font-weight:600;font-size:12px;color:var(--green)">${s.status}</div></div>
+        ${s.budget?`<div style="flex:1;text-align:center;background:#FEF0E7;padding:8px;border-radius:8px"><div style="font-size:10px;color:var(--gray)">Baaki</div><div style="font-weight:600;font-size:12px;color:var(--orange)">₹${(s.budget-(s.paid||0)).toLocaleString()}</div></div>`:''}
+      </div>
+    </div>` : `
+    <div style="padding:24px;text-align:center;color:var(--gray)">
+      <div style="font-size:36px;margin-bottom:8px">📷</div>
+      <div style="font-size:13px">Contractor ne abhi photo upload nahi ki</div>
+      <div style="font-size:12px;margin-top:6px;background:var(--cream);padding:8px;border-radius:8px">${s.update||'Koi update nahi'}</div>
+    </div>`}
+  </div>`).join('')}`;
+}
+</script>
+</body>
+</html>
+
+<!-- PHASE 2 ADDITIONS -->
+<script type="module">
+// Import required Firebase functions - already loaded above, these are addons
+</script>
